@@ -1,0 +1,17 @@
+{
+    "site_title": "Blog",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+
+    "register_now": "Register Now",
+    "no_account_yet": "No account yet?",
+
+    "form": {
+        "login": {
+            "title": "Login to your account"
+        }
+    }
+}

@@ -1,0 +1,54 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    background-color: $color-green;
+    position: relative;
+
+    a {
+        color: $color-white;
+    }
+
+    @include max-screen($phone-max-width) {
+        flex-direction: column;
+    }
+}
+
+nav {
+    display: flex;
+
+    a {
+        margin-left: 1rem;
+    }
+    @include max-screen($phone-max-width) {
+        display: none;
+
+        a {
+            display: block;
+            margin-left: 0;
+        }
+    }
+}
+
+.nav--show {
+    display: block;
+}
+
+.header__burger {
+    width: 1.25rem;
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    cursor: pointer;
+    display: none;
+
+    span {
+        height: 2px;
+        background-color: $color-white;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    @include max-screen($phone-max-width) {
+        display: block;
+    }
+}
