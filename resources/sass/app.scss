@@ -1,8 +1,15 @@
-@import 'sanitize';
+@import 'fonts';
 @import 'settings';
-@import 'media-queries';
 
+@import 'sanitize';
+@import 'media-queries';
 @import 'common';
 
+@import 'keyframes/fadeInFromNone';
+
+@import 'components/arrow';
 @import 'components/header';
-@import 'components/form';
+@import 'components/main';
+@import 'components/section';
+@import 'components/slider';
+@import 'components/footer';

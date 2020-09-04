@@ -1,0 +1,130 @@
+.slider {
+    position: relative;
+
+    .slider__arrow {
+        position: absolute;
+
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -moz-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        -o-transform: translateY(-50%);
+        transform: translateY(-50%);
+
+        border-radius: 100%;
+        width: 50px;
+        height: 50px;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 0.5);
+        }
+
+        .arrow {
+            margin-top: 14px;
+        }
+
+        .arrow--left {
+            margin-left: 16px;
+        }
+
+        .arrow--right {
+            margin-left: 11px;
+        }
+    }
+
+    .slider__arrow--left {
+        left: 3em;
+
+        @include max-screen($tablet-max-width) {
+            left: 2em;
+        }
+    
+        @include max-screen($phone-max-width) {
+            left: 1em;
+        }
+    }
+
+    .slider__arrow--right {
+        right: 3em;
+
+        @include max-screen($tablet-max-width) {
+            right: 2em;
+        }
+    
+        @include max-screen($phone-max-width) {
+            right: 1em;
+        }
+    }
+}
+
+.slider__item {
+    display: none;
+    position: relative;
+}
+
+.slider__item--active {
+    display: block;
+    -webkit-animation: fadeInFromNone 0.5s ease-out;
+    -moz-animation: fadeInFromNone 0.5s ease-out;
+    -o-animation: fadeInFromNone 0.5s ease-out;
+    animation: fadeInFromNone 0.5s ease-out;
+}
+
+.slider__item-image {
+    width: 100%;
+}
+
+.slider__item-text {
+    top: 25%;
+    right: 15%;
+    position: absolute;
+
+    font-family: $heading-font-family;
+    text-transform: uppercase;
+    text-align: right;
+
+    p {
+        font-size: 3em;
+        font-weight: bold;
+        color: $color-white;
+        background-color: $color-black;
+        padding: 0 0.25em;
+        margin-bottom: 0.25em;
+
+        @include max-screen($tablet-max-width) {
+            font-size: 2.5em;
+        }
+    
+        @include max-screen($phone-max-width) {
+            font-size: 2em;
+        }
+    }
+    time {
+        font-size: 1.25em;
+        padding: 0.25em 0;
+
+        @include max-screen($tablet-max-width) {
+            font-size: 1em;
+        }
+    }
+}
+
+.slider__pagination {
+    left: 50%;
+    bottom: 2em;
+    display: flex;
+    position: absolute;
+    transform: translateX(-50%);
+}
+
+.slider__pagination-item {
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    margin-left: 5px;
+    background-color: $color-grey;
+}
+
+.slider__pagination-item--active {
+    background-color: $color-black;
+}

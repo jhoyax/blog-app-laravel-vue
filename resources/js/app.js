@@ -1,10 +1,13 @@
 import './bootstrap';
 import Vue from 'vue';
-import router from './routes';
+import router from './route/routes';
 import store from './store/';
 import App from './App.vue';
-import i18n from './i18n'
+import i18n from './services/i18n'
 import http from "./services/http"
+import { dashToDot } from './helpers/formatter'
+
+Vue.prototype.$dashToDot = (...args) => dashToDot(...args);
 
 new Vue({
     el: '#app',

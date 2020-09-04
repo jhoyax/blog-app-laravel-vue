@@ -1,0 +1,26 @@
+.arrow {
+    border: solid $color-black;
+    border-width: 0 5px 5px 0;
+    display: inline-block;
+    padding: 8px;
+  }
+  
+  .arrow--right {
+    transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+  }
+  
+  .arrow--left {
+    transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+  }
+  
+  .arrow--up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+  }
+  
+  .arrow--down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
