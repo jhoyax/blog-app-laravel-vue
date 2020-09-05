@@ -32,7 +32,7 @@ const store = require('../store/').default;
 const {LOGIN} = require('../store/action-types');
 
 export default {
-    name: 'Login',
+    name: 'LoginForm',
     data() {
         return {
             messages: {

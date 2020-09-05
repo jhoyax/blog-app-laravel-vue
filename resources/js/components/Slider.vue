@@ -3,7 +3,7 @@
         <div :class="addActiveClass('slider__item', item.active)" v-for="(item, index) in sliderItems" :key="index">
             <img :src="item.image" class="slider__item-image"/>
             <div class="slider__item-text">
-                <p>{{item.title}}</p>
+                <span>{{item.title}}</span>
                 <time :datetime="item.date">{{$dashToDot(item.date)}}</time>
             </div>
         </div>
@@ -33,7 +33,7 @@ export default {
                     image: '/img/slider/slider1.jpg',
                     title: 'Title Here 1',
                     date: '2019-06-19',
-                    active: true
+                    active: false
                 },
                 {
                     image: '/img/slider/slider2.jpg',
@@ -43,9 +43,9 @@ export default {
                 },
                 {
                     image: '/img/slider/slider3.jpg',
-                    title: 'Title Here 3',
+                    title: 'サンプルテキストサンプルテキストサンプルテキスト',
                     date: '2019-06-21',
-                    active: false
+                    active: true
                 }
             ]
         };

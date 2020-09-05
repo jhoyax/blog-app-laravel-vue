@@ -1,0 +1,27 @@
+section {
+    padding-top: 5em;
+    padding-bottom: 5em;
+}
+
+.section__header {
+    @include max-screen($phone-max-width) {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+.section__content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    @include max-screen($phone-max-width) {
+        justify-content: center;
+    }
+}
+
+.section__footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 3em;
+}

@@ -1,7 +1,6 @@
 header {
-    padding: 2em 3em;
-    margin: 0 auto;
-    max-width: $site-max-width;
+    padding-top: 2em;
+    padding-bottom: 2em;
 
     display: flex;
     justify-content: space-between;
@@ -10,18 +9,16 @@ header {
     font-family: $heading-font-family;
     font-weight: bold;
     text-transform: uppercase;
-
-    @include max-screen($tablet-max-width) {
-        padding: 2em 2em;
-    }
-
-    @include max-screen($phone-max-width) {
-        padding: 1em 1em;
-    }
 }
 
 .header__brand {
     font-size: 1.5em;
+
+    span {
+        @include max-screen($below-phone-min-width) {
+            display: none;
+        }
+    }
 }
 
 .header__menu {

@@ -1,6 +1,12 @@
 {
     "site_title": "Blog",
 
+    "home": "Home",
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+
+    "404": "404",
+    "404_description": "Page not found.",
+
+    "copyright": "Copyright"
 }

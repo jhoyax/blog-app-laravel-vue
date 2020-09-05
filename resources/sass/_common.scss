@@ -1,3 +1,39 @@
+html {
+    scroll-behavior: smooth;
+}
+
 a {
     color: $color-black;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: $heading-font-family;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 3rem;
+
+    @include max-screen($phone-max-width) {
+        font-size: 2rem;
+    }
+
+    @include max-screen($below-phone-min-width) {
+        font-size: 1rem;
+    }
+}
+
+button {
+    font-weight: bold;
+    color: $color-white;
+    font-family: 'Montserrat';
+    text-transform: uppercase;
+    cursor: pointer;
+
+    padding: 1em 5em;
+    background-color: $color-black;
+
+    @include max-screen($below-phone-min-width) {
+        padding: 1em 3em;
+    }
 }

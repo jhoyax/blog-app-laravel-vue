@@ -1,12 +1,11 @@
 <template>
-    <header>
+    <header class="container">
         <div class="header__brand">
-            <router-link :to="{ name: 'home' }"><logo/> {{ $t('site_title') }}</router-link>
+            <router-link :to="{ name: 'home' }"><logo/> <span>{{ $t('site_title') }}</span></router-link>
         </div>
         <nav>
             <ul  class="header__menu">
                 <li><a href="#">{{ $t('login') }}</a></li>
-                <li><a href="#">{{ $t('register') }}</a></li>
             </ul>
         </nav>
     </header>

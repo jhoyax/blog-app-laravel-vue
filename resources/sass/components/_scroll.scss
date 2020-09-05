@@ -1,0 +1,41 @@
+.scroll--top {
+    position: fixed;
+    bottom: -5em;
+    right: 3em;
+    z-index: 99;
+    padding: 1em 1.5em;
+
+    font-family: $heading-font-family;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    background-color: $color-white;
+
+    transition: transform .25s ease,background .25s,color .25s;
+
+    &:hover {
+        color: $color-white;
+        background-color: $color-black;
+
+        .arrow {
+            border-color: $color-white;
+        }
+    }
+
+    .arrow {
+        padding: 3px;
+        border-width: 0 3px 3px 0;
+    }
+
+    span {
+        display: block;
+        font-size: 0.75em;
+    }
+}
+
+.scroll--show {
+    -webkit-transform: translate3d(0, -8em, 0);
+    transform: translate3d(0, -8em, 0);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}

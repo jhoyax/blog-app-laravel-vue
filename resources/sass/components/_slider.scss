@@ -11,7 +11,6 @@
         -o-transform: translateY(-50%);
         transform: translateY(-50%);
 
-        border-radius: 100%;
         width: 50px;
         height: 50px;
 
@@ -82,29 +81,44 @@
     font-family: $heading-font-family;
     text-transform: uppercase;
     text-align: right;
+    max-width: 450px;
+    
+    @include max-screen($phone-max-width) {
+        max-width: 250px;
+    }
+    
+    @include max-screen($below-phone-min-width) {
+        display: none;
+    }
 
-    p {
+    span {
         font-size: 3em;
         font-weight: bold;
         color: $color-white;
         background-color: $color-black;
-        padding: 0 0.25em;
-        margin-bottom: 0.25em;
+        box-shadow: 0.5em 0 0 $color-black, -0.5em 0 0 $color-black;
+        line-height: 4rem;
 
         @include max-screen($tablet-max-width) {
             font-size: 2.5em;
         }
     
         @include max-screen($phone-max-width) {
-            font-size: 2em;
+            font-size: 1em;
+            line-height: 1rem;
         }
     }
     time {
         font-size: 1.25em;
         padding: 0.25em 0;
+        display: block;
 
         @include max-screen($tablet-max-width) {
             font-size: 1em;
+        }
+    
+        @include max-screen($phone-max-width) {
+            font-size: 0.5em;
         }
     }
 }
