@@ -6,7 +6,6 @@
     "register": "Register",
 
     "close": "Close",
-
     "name": "Name",
     "email": "Email",
     "password": "Password",
@@ -15,6 +14,13 @@
     "register_here": "Register Here",
     "already_have_account": "Already have an account?",
     "login_here": "Login Here",
+
+    "cancel": "Cancel",
+    "create_new_post": "Create New Post",
+    "save_post": "Save Post",
+    "upload_image": "Upload Image",
+    "title": "Title",
+    "content": "Content",
 
     "404": "404",
     "404_description": "Page not found.",

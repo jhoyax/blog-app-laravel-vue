@@ -295,6 +295,7 @@ button {
   font-family: "Montserrat";
   text-transform: uppercase;
   cursor: pointer;
+  outline: none;
   padding: 1em 5em;
   background-color: #101010;
 }
@@ -303,6 +304,10 @@ button {
   button {
     padding: 1em 3em;
   }
+}
+
+hr {
+  border: 1px solid #d6d6d6;
 }
 
 @-webkit-keyframes fadeInFromNone {
@@ -446,11 +451,25 @@ section {
   padding-bottom: 5em;
 }
 
+.section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media only screen and (max-width: 767px) {
   .section__header {
     display: flex;
+    flex-direction: column;
     justify-content: center;
   }
+}
+
+.section__header a {
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
 .section__content {
@@ -621,7 +640,7 @@ section {
   height: 15px;
   border-radius: 100%;
   margin-left: 5px;
-  background-color: #cbcfcd;
+  background-color: #d6d6d6;
 }
 
 .slider__pagination-item--active {
@@ -664,6 +683,55 @@ article time {
   display: block;
 }
 
+.article__comment {
+  border: none;
+  background-color: #f5f5f5;
+}
+
+.article__comment time {
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0;
+}
+
+.article__post {
+  border: none;
+  padding: 0;
+  margin-top: 0;
+  font-family: "Montserrat", sans-serif;
+}
+
+.article__post time {
+  font-size: 1em;
+}
+
+.article__post h1 {
+  margin-bottom: 1em;
+}
+
+.article__post img {
+  height: 500px;
+}
+
+.article__post-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1em;
+}
+
+.article__post-actions a {
+  text-decoration: underline;
+  margin-left: 1em;
+  text-transform: none;
+  font-weight: bold;
+}
+
+.article__post-content {
+  line-height: 2em;
+  white-space: pre-wrap;
+  white-space: pre-line;
+}
+
 footer {
   font-family: "Montserrat", sans-serif;
   color: #fff;
@@ -691,6 +759,10 @@ footer a {
   justify-content: center;
   padding: 2em 0;
   font-size: 0.75em;
+}
+
+.footer__copyright p {
+  letter-spacing: 1px;
 }
 
 .scroll--top {
@@ -753,10 +825,15 @@ form a {
   text-transform: uppercase;
 }
 
-form input {
+form input,
+form textarea {
   border: 1px solid #101010;
   width: 100%;
   padding: 1em 0.5em;
+}
+
+form textarea {
+  resize: none;
 }
 
 form button {
@@ -768,7 +845,7 @@ form button {
 }
 
 .form__title {
-  font-size: 1.5em;
+  font-size: 2em;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -781,6 +858,54 @@ form button {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.form__actions a {
+  text-decoration: underline;
+  margin-left: 1em;
+  text-transform: none;
+}
+
+.form__file-upload {
+  overflow: hidden;
+  height: 500px;
+  position: relative;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.form__file-upload input {
+  border: none;
+  padding: 0;
+  height: 600px;
+  margin-top: -100px;
+  background-color: #d6d6d6;
+  cursor: pointer;
+  outline: none;
+}
+
+.form__file-upload label {
+  position: absolute;
+  bottom: 0;
+  padding: 1em 2em;
+  text-transform: uppercase;
+  background-color: #101010;
+  color: #fff;
+  font-weight: bold;
+}
+
+.form__comment {
+  width: 100%;
+}
+
+.form__comment button {
+  width: auto;
 }
 
 .messages-list {

@@ -15,10 +15,14 @@ form {
         text-transform: uppercase;
     }
 
-    input {
+    input, textarea {
         border: 1px solid $color-black;
         width: 100%;
         padding: 1em 0.5em;
+    }
+
+    textarea {
+        resize: none;
     }
 
     button {
@@ -31,7 +35,7 @@ form {
 }
 
 .form__title {
-    font-size: 1.5em;
+    font-size: 2em;
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -44,4 +48,52 @@ form {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+
+    a {
+        text-decoration: underline;
+        margin-left: 1em;
+        text-transform: none;
+    }
+}
+
+.form__file-upload {
+    overflow: hidden;
+    height: 500px;
+    position: relative;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    input {
+        border: none;
+        padding: 0;
+        height: 600px;
+        margin-top: -100px;
+        background-color: $color-grey;
+        cursor: pointer;
+        outline: none;
+    }
+
+    label {
+        position: absolute;
+        bottom: 0;
+        padding: 1em 2em;
+        text-transform: uppercase;
+        background-color: $color-black;
+        color: $color-white;
+        font-weight: bold;
+    }
+}
+
+.form__comment {
+    width: 100%;
+
+    button {
+        width: auto;
+    }
 }

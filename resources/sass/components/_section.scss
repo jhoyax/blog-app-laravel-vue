@@ -4,9 +4,21 @@ section {
 }
 
 .section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+
     @include max-screen($phone-max-width) {
         display: flex;
+        flex-direction: column;
         justify-content: center;
+    }
+
+    a {
+        font-family: $heading-font-family;
+        font-weight: bold;
+        text-decoration: underline;
     }
 }
 

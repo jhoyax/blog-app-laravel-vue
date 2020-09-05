@@ -26,7 +26,6 @@
         <div class="form__group">
             <button
                 type="submit"
-                class="form__action"
                 @click.prevent="handleSubmit"
             >{{ $t('register') }}</button>
             <messages-list :items="messages.general" :isSuccess="isSuccess"/>

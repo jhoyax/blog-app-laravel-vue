@@ -29,6 +29,7 @@ button {
     font-family: 'Montserrat';
     text-transform: uppercase;
     cursor: pointer;
+    outline: none;
 
     padding: 1em 5em;
     background-color: $color-black;
@@ -36,4 +37,8 @@ button {
     @include max-screen($below-phone-min-width) {
         padding: 1em 3em;
     }
+}
+
+hr {
+    border: 1px solid $color-grey;
 }

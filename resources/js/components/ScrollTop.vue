@@ -1,5 +1,5 @@
 <template>
-    <a href="#" @click.prevent="handleClick" :class="'scroll--top ' + (show ? 'scroll--show' : '')">
+    <a href="#" @click.prevent="handleClick" :class="'scroll--top ' + showScroll">
         <div class="arrow arrow--up"></div>
         <span>Top</span>
     </a>
@@ -15,6 +15,11 @@ export default {
     },
     mounted() {
         window.addEventListener('scroll', this.handleScroll);
+    },
+    computed: {
+        showScroll() {
+            return this.show ? 'scroll--show' : '';
+        }
     },
     methods: {
         handleScroll() {

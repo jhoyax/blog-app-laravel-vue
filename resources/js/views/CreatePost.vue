@@ -2,28 +2,25 @@
     <main>
         <breadcrumb :links="breadCrumbLinks"/>
         <section class="container">
-            <div class="section__header">
-                <h1>{{ $t('404') }}</h1>
-            </div>
-            <div class="section__content">
-                <p>{{ $t('404_description') }}</p>
-            </div>
+            <post-form/>
         </section>
     </main>
 </template>
 <script>
 import Breadcrumb from '../components/Breadcrumb';
+import PostForm from '../components/PostForm';
 
 export default {
-    name: 'NotFound',
+    name: 'CreatePost',
     components: {
-        Breadcrumb
+        Breadcrumb,
+        PostForm
     },
     data() {
         return {
             breadCrumbLinks: [
                 {
-                    title: this.$t('404')
+                    title: this.$t('create_new_post')
                 }
             ]
         }
