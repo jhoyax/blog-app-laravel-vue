@@ -1,7 +1,7 @@
 <template>
     <form method="POST" action="/login">
         <div class="form__group">
-            <h1 class="form__title">{{ $t('form.login.title') }}</h1>
+            <p class="form__title">{{ $t('login') }}</p>
         </div>
         <div class="form__group">
             <label>{{ $t('email') }}</label>
@@ -17,22 +17,28 @@
             <button
                 type="submit"
                 class="form__action"
-                @click="handleSubmit"
+                @click.prevent="handleSubmit"
             >{{ $t('login') }}</button>
             <messages-list :items="messages.general" :isSuccess="isSuccess"/>
         </div>
-        <div class="form__group">
-            {{ $t('no_account_yet') }} <router-link :to="{ name: 'register' }">{{ $t('register_now') }}</router-link>.
+        <div class="form__group form__group--center">
+            {{ $t('no_account_yet') }}
+            <a href="#" @click.prevent="handleShowRegisterForm">{{ $t('register_here') }}</a>
         </div>
     </form>
 </template>
 
 <script>
+import { bus } from '../app'
 const store = require('../store/').default;
 const {LOGIN} = require('../store/action-types');
+import MessagesList from './MessagesList';
 
 export default {
     name: 'LoginForm',
+    components: {
+        MessagesList
+    },
     data() {
         return {
             messages: {
@@ -48,21 +54,15 @@ export default {
         }
     },
     methods: {
-        handleSubmit(e) {
-            e.preventDefault();
-
+        handleSubmit() {
             let params = {
-                name: this.fields.name,
                 email: this.fields.email,
+                password: this.fields.password,
                 successCb: res => {
+                    // reset
+                    Object.assign(this.$data, this.$options.data.apply(this));
+
                     this.isSuccess = true;
-
-                    this.messages.general = [response.data.message];
-                    this.messages.email = [];
-                    this.messages.password = [];
-
-                    this.fields.email = '';
-                    this.fields.password = '';
 
                     this.$router.push('/')
                 },
@@ -75,6 +75,9 @@ export default {
                 }
             };
             store.dispatch(LOGIN, params);
+        },
+        handleShowRegisterForm() {
+            bus.$emit('showRegisterForm')
         }
     }
 }

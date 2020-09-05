@@ -9,6 +9,8 @@ import { dashToDot } from './helpers/formatter'
 
 Vue.prototype.$dashToDot = (...args) => dashToDot(...args);
 
+export const bus = new Vue();
+
 new Vue({
     el: '#app',
     router,

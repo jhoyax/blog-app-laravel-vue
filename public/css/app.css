@@ -383,6 +383,11 @@ button {
   }
 }
 
+.container--center {
+  display: flex;
+  justify-content: center;
+}
+
 .arrow {
   border: solid #101010;
   border-width: 0 5px 5px 0;
@@ -724,5 +729,69 @@ footer a {
 .scroll--show {
   transform: translate3d(0, -8em, 0);
   transform-style: preserve-3d;
+}
+
+form {
+  min-width: 450px;
+  font-family: "Montserrat", sans-serif;
+}
+
+@media only screen and (max-width: 767px) {
+  form {
+    min-width: 300px;
+  }
+}
+
+@media only screen and (max-width: 319px) {
+  form {
+    min-width: 200px;
+  }
+}
+
+form a {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+form input {
+  border: 1px solid #101010;
+  width: 100%;
+  padding: 1em 0.5em;
+}
+
+form button {
+  width: 100%;
+}
+
+.form__field {
+  display: block;
+}
+
+.form__title {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.form__group {
+  margin-bottom: 1em;
+}
+
+.form__group--center {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.messages-list {
+  list-style: none;
+}
+
+.messages-list li {
+  color: #bb3535;
+}
+
+.messages-list__item--success {
+  color: #42b983;
 }
 

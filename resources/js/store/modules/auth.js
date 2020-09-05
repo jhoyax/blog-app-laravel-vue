@@ -7,8 +7,8 @@ const state = {
 };
 
 const actions = {
-    [ACTION.REGISTER]({commit}, {email, password, name, successCb, errorCb}) {
-      let params = {email: email, password: password, name: name}
+    [ACTION.REGISTER]({commit}, {name, email, password, password_confirmation, successCb, errorCb}) {
+      let params = {name: name, email: email, password: password, password_confirmation: password_confirmation}
       http.post('register', params, res => {
         successCb(res);
       }, error => {

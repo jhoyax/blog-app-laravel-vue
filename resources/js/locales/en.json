@@ -5,6 +5,17 @@
     "login": "Login",
     "register": "Register",
 
+    "close": "Close",
+
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "password_confirmation": "Confirm Password",
+    "no_account_yet": "No account yet?",
+    "register_here": "Register Here",
+    "already_have_account": "Already have an account?",
+    "login_here": "Login Here",
+
     "404": "404",
     "404_description": "Page not found.",
 

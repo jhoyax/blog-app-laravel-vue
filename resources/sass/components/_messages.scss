@@ -1,0 +1,11 @@
+.messages-list {
+    list-style: none;
+
+    li {
+        color: $color-red;
+    }
+}
+
+.messages-list__item--success {
+    color: $color-green;
+}
