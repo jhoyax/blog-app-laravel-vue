@@ -1,6 +1,6 @@
 <template>
     <fragment>
-        <slider v-if="showChildren"/>
+        <slider v-show="showChildren"/>
         <news/>
     </fragment>
 </template>

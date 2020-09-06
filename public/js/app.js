@@ -26728,7 +26728,20 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c(
     "fragment",
-    [_vm.showChildren ? _c("slider") : _vm._e(), _vm._v(" "), _c("news")],
+    [
+      _c("slider", {
+        directives: [
+          {
+            name: "show",
+            rawName: "v-show",
+            value: _vm.showChildren,
+            expression: "showChildren"
+          }
+        ]
+      }),
+      _vm._v(" "),
+      _c("news")
+    ],
     1
   )
 }
