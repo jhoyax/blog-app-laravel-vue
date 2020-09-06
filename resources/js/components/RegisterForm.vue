@@ -38,10 +38,10 @@
 </template>
 
 <script>
-import { bus } from '../app'
-const store = require('../store/').default;
-const {REGISTER} = require('../store/action-types');
 import MessagesList from './MessagesList';
+const store = require('../store/').default;
+import { eventBus } from '../services/eventBus';
+const {REGISTER} = require('../store/action-types');
 
 export default {
     name: 'RegisterForm',
@@ -77,9 +77,8 @@ export default {
                     // reset
                     Object.assign(this.$data, this.$options.data.apply(this));
 
+                    this.messages.general = [this.$t('success')];
                     this.isSuccess = true;
-
-                    this.$router.push('/')
                 },
                 errorCb: error => {
                     this.isSuccess = false;
@@ -94,7 +93,7 @@ export default {
             store.dispatch(REGISTER, params);
         },
         handleShowLoginForm() {
-            bus.$emit('showLoginForm')
+            eventBus.$emit('showLoginForm')
         }
     }
 }

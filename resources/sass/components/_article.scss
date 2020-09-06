@@ -31,14 +31,27 @@ article {
 }
 
 .article__comment {
+    width: 100%;
     border: none;
     background-color: $color-light-grey;
+
+    span {
+        font-family: $heading-font-family;
+        font-weight: bold;
+        margin-bottom: 1em;
+        display: block;
+    }
 
     time {
         font-weight: bold;
         margin-top: 1.5em;
         margin-bottom: 0;
+        font-family: $heading-font-family;
     }
+}
+
+.article__comment-content {
+
 }
 
 .article__post {
@@ -77,4 +90,5 @@ article {
     line-height: 2em;
     white-space: pre-wrap;
     white-space: pre-line;
+    font-family: $root-font-family;
 }

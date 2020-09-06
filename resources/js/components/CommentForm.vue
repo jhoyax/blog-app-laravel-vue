@@ -19,8 +19,12 @@
     </form>
 </template>
 <script>
+import MessagesList from './MessagesList';
 export default {
     name: 'CommentForm',
+    components: {
+        MessagesList
+    },
     data() {
         return {
             messages: {

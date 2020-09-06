@@ -4,6 +4,7 @@
     "home": "Home",
     "login": "Login",
     "register": "Register",
+    "logout": "Logout",
 
     "close": "Close",
     "name": "Name",
@@ -25,5 +26,7 @@
     "404": "404",
     "404_description": "Page not found.",
 
-    "copyright": "Copyright"
+    "copyright": "Copyright",
+
+    "success": "Success"
 }

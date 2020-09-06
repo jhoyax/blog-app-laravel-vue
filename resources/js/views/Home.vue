@@ -1,19 +1,20 @@
 <template>
     <main>
-        <section class="container container--center" v-if="showAuthForm">
-            <login-form v-if="showLoginForm"/>
-            <register-form v-if="showRegisterForm"/>
-        </section>
+        <auth-section 
+            v-if="showAuthForm" 
+            :showLoginForm="showLoginForm" 
+            :showRegisterForm="showRegisterForm"/>
         <slider v-if="showSlider"/>
         <news/>
     </main>
 </template>
 <script>
-import Slider from '../components/Slider';
 import News from '../components/News';
+import Slider from '../components/Slider';
 import LoginForm from '../components/LoginForm';
+import { eventBus } from '../services/eventBus';
+import AuthSection from '../components/AuthSection';
 import RegisterForm from '../components/RegisterForm';
-import { bus } from '../app'
 
 export default {
     name: 'Home',
@@ -21,7 +22,8 @@ export default {
         Slider,
         News,
         LoginForm,
-        RegisterForm
+        RegisterForm,
+        AuthSection
     },
     data() {
         return {
@@ -32,18 +34,18 @@ export default {
         }
     },
     mounted() {
-        bus.$on('showAuthForm', (isShow) => {
+        eventBus.$on('showAuthForm', (isShow) => {
             this.showAuthForm = isShow;
 
             this.showLoginForm = isShow;
             this.showSlider = !isShow;
             this.showRegisterForm = false;
         });
-        bus.$on('showLoginForm', () => {
+        eventBus.$on('showLoginForm', () => {
             this.showLoginForm = true;
             this.showRegisterForm = false;
         });
-        bus.$on('showRegisterForm', () => {
+        eventBus.$on('showRegisterForm', () => {
             this.showLoginForm = false;
             this.showRegisterForm = true;
         });

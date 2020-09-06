@@ -23,6 +23,14 @@ h1 {
     }
 }
 
+h2 {
+    font-size: 2em;
+
+    @include max-screen($phone-max-width) {
+        font-size: 1rem;
+    }
+}
+
 button {
     font-weight: bold;
     color: $color-white;

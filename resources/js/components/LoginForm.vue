@@ -28,10 +28,10 @@
 </template>
 
 <script>
-import { bus } from '../app'
-const store = require('../store/').default;
-const {LOGIN} = require('../store/action-types');
 import MessagesList from './MessagesList';
+const store = require('../store/').default;
+import { eventBus } from '../services/eventBus';
+const {LOGIN} = require('../store/action-types');
 
 export default {
     name: 'LoginForm',
@@ -60,10 +60,10 @@ export default {
                 successCb: res => {
                     // reset
                     Object.assign(this.$data, this.$options.data.apply(this));
-
+                    
+                    this.messages.general = [this.$t('success')];
                     this.isSuccess = true;
-
-                    this.$router.push('/')
+                    eventBus.$emit('userLoggedIn', true);
                 },
                 errorCb: error => {
                     this.isSuccess = false;
@@ -76,7 +76,7 @@ export default {
             store.dispatch(LOGIN, params);
         },
         handleShowRegisterForm() {
-            bus.$emit('showRegisterForm')
+            eventBus.$emit('showRegisterForm')
         }
     }
 }

@@ -42,7 +42,7 @@ export default {
 
     // Intercept the request to make sure the token is injected into the header.
     axios.interceptors.request.use(config => {
-      config.headers['Authorization']    = `Bearer ${localStorage.getItem('passport-token')}`;
+      config.headers['Authorization']    = `Bearer ${$cookies.get('token')}`;
       return config
     })
 
@@ -51,7 +51,7 @@ export default {
       // ...get the token from the header or response data if exists, and save it.
       const token = response.headers['Authorization'] || response.data['token'];
       if (token) {
-        localStorage.setItem('passport-token', token)
+        $cookies.set('token', token, response.data['expires_at'])
       }
 
       return response

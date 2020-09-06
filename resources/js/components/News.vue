@@ -2,7 +2,7 @@
     <section class="container">
         <div class="section__header">
             <h1>News</h1>
-            <router-link :to="{ name: 'createPost' }">{{ $t('create_new_post') }}</router-link>
+            <router-link v-if="hasUser" :to="{ name: 'createPost' }">{{ $t('create_new_post') }}</router-link>
         </div>
         <div class="section__content">
             <article v-for="(item, index) in newsItems" :key="index">
@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { eventBus } from '../services/eventBus';
+
 export default {
     name: 'News',
     data() {
@@ -57,8 +59,18 @@ export default {
                     title: 'サンプルテキストサンプルテキストサンプルテキスト',
                     date: '2019-06-21'
                 }
-            ]
+            ],
+            hasUser: false
         };
+    },
+    mounted() {
+        eventBus.$on('userLoggedIn', (data) => {
+            this.hasUser = data;
+        });
+
+        if ($cookies.get('token')) {
+            this.hasUser = true;
+        }
     }
 }
 </script>
