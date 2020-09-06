@@ -5,6 +5,7 @@ import Home from '../views/Home';
 import CreatePost from '../views/CreatePost';
 import SinglePost from '../views/SinglePost';
 import NotFound from '../views/NotFound';
+import MainContainer from '../views/MainContainer';
 
 Vue.use(VueRouter);
 
@@ -12,24 +13,31 @@ let router = new VueRouter({
     mode: 'history',
     routes: [
         {
-            path: '/',
-            name: 'home',
-            component: Home,
-        },
-        {
-            path: '/post/create',
-            name: 'createPost',
-            component: CreatePost,
-        },
-        {
-            path: '/post/:postId',
-            name: 'singlePost',
-            component: SinglePost,
-        },
-        {
-            path: '*',
-            component: NotFound,
-        },
+          path: '/',
+          component: MainContainer,
+          children: [
+            {
+                path: '/',
+                name: 'home',
+                component: Home,
+            },
+            {
+                path: '/post/create',
+                name: 'createPost',
+                component: CreatePost,
+            },
+            {
+                path: '/post/:postId',
+                name: 'singlePost',
+                component: SinglePost,
+            },
+            {
+                path: '*',
+                name: 'notFound',
+                component: NotFound,
+            }
+          ]
+        }
     ]
 });
 

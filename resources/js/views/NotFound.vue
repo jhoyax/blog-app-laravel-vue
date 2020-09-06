@@ -1,6 +1,6 @@
 <template>
     <main>
-        <breadcrumb :links="breadCrumbLinks"/>
+        <breadcrumb :links="breadCrumbLinks" v-if="showChildren"/>
         <section class="container">
             <div class="section__header">
                 <h1>{{ $t('404') }}</h1>
@@ -13,9 +13,11 @@
 </template>
 <script>
 import Breadcrumb from '../components/Breadcrumb';
+import authOptions from '../mixins/authOptions';
 
 export default {
     name: 'NotFound',
+    mixins: [authOptions],
     components: {
         Breadcrumb
     },

@@ -1,6 +1,6 @@
 <template>
     <main>
-        <breadcrumb :links="breadCrumbLinks"/>
+        <breadcrumb :links="breadCrumbLinks" v-if="showChildren"/>
         <section class="container">
             <post-form v-if="edit" v-on:cancelEdit="handleCancelEdit"/>
             <post-display v-else v-on:editPost="handleEditPost"/>
@@ -16,9 +16,11 @@ import Breadcrumb from '../components/Breadcrumb';
 import PostForm from '../components/PostForm';
 import PostDisplay from '../components/PostDisplay';
 import Comment from '../components/Comment';
+import authOptions from '../mixins/authOptions';
 
 export default {
     name: 'SinglePost',
+    mixins: [authOptions],
     components: {
         Breadcrumb,
         PostForm,

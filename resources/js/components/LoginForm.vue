@@ -64,6 +64,11 @@ export default {
                     this.messages.general = [this.$t('success')];
                     this.isSuccess = true;
                     eventBus.$emit('userLoggedIn', true);
+                    
+                    if(this.$route.name !== 'home'){
+                        // redirect to home
+                        this.$router.push({name: 'home'});
+                    }
                 },
                 errorCb: error => {
                     this.isSuccess = false;
