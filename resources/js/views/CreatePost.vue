@@ -2,7 +2,7 @@
     <main>
         <breadcrumb :links="breadCrumbLinks"/>
         <section class="container">
-            <post-form/>
+            <post-form :post="{}"/>
         </section>
     </main>
 </template>

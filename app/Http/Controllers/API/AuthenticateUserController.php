@@ -56,7 +56,7 @@ class AuthenticateUserController extends Controller
         return response()->json([
             'token' => $token->accessToken,
             'token_type' => 'bearer',
-            'expires_at' => Carbon::parse($token->token->expires_at)->toDateTimeString(),
+            'expires_at' => Carbon::parse($token->token->expires_at)->timestamp,
             'user' => new UserResource($user),
         ], Response::HTTP_OK);
     }

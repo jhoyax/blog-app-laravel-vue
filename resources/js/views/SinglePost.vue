@@ -38,7 +38,7 @@ export default {
             hasComment: true,
             breadCrumbLinks: [
                 {
-                    title: 'サンプルテキストサンプルテキストサンプルテキスト'
+                    title: ''
                 }
             ],
             post: {},
@@ -53,8 +53,8 @@ export default {
                 this.fetchPost(this.routePostId);
             }
         }
-        eventBus.$on('fetchedComment', (data) => {
-            this.hasComment = data.length ? true : false;
+        eventBus.$on('fetchedComment', (data, hasAuth) => {
+            this.hasComment = data.length || hasAuth? true : false;
         });
     },
     methods: {
@@ -63,6 +63,11 @@ export default {
                 id: id,
                 successCb: res => {
                     this.post = res.data.data;
+                    this.breadCrumbLinks = [
+                        {
+                            title: this.post.title
+                        }
+                    ];
                 },
                 errorCb: error => {
                     this.$router.push({name: 'notFound'});
@@ -73,8 +78,14 @@ export default {
         handleEditPost() {
             this.edit = true;
         },
-        handleCancelEdit() {
+        handleCancelEdit(post) {
             this.edit = false;
+            this.post = post;
+            this.breadCrumbLinks = [
+                {
+                    title: this.post.title
+                }
+            ];
         }
     }
 }

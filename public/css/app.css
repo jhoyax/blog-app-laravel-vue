@@ -888,6 +888,11 @@ form button {
   text-transform: uppercase;
 }
 
+.form__field-title {
+  font-size: 2em;
+  font-weight: bold;
+}
+
 .form__group {
   margin-bottom: 1em;
 }
@@ -900,19 +905,14 @@ form button {
 
 .form__actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .form__actions a {
   text-decoration: underline;
   margin-left: 1em;
   text-transform: none;
-}
-
-.form__actions-comment {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
 }
 
 .form__file-upload {

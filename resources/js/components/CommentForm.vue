@@ -9,7 +9,7 @@
                 rows="3"></textarea>
             <messages-list :items="messages.content"/>
         </div>
-        <div class="form__group form__actions-comment">
+        <div class="form__group form__actions">
             <button
                 type="submit"
                 @click.prevent="handleSubmit"

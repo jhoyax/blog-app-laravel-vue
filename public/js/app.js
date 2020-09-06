@@ -2077,7 +2077,7 @@ var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/
         commentableId: this.commentableId,
         page: this.currentPage,
         successCb: function successCb(res) {
-          _services_eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$emit('fetchedComment', JSON.parse(JSON.stringify(res.data.data)));
+          _services_eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$emit('fetchedComment', JSON.parse(JSON.stringify(res.data.data)), res.data.hasAuth);
         },
         errorCb: function errorCb(error) {}
       };
@@ -2623,6 +2623,10 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MessagesList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MessagesList */ "./resources/js/components/MessagesList.vue");
+/* harmony import */ var _mixins_singlePost__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../mixins/singlePost */ "./resources/js/mixins/singlePost.js");
+//
+//
+//
 //
 //
 //
@@ -2660,8 +2664,17 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
+
+var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
+
+var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
+    POST_STORE = _require.POST_STORE,
+    POST_UPDATE = _require.POST_UPDATE;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'PostForm',
+  mixins: [_mixins_singlePost__WEBPACK_IMPORTED_MODULE_1__["default"]],
   components: {
     MessagesList: _MessagesList__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -2679,7 +2692,8 @@ __webpack_require__.r(__webpack_exports__);
         content: ''
       },
       isSuccess: false,
-      uploadedImageURL: ''
+      uploadedImageURL: '',
+      holdPost: this.post
     };
   },
   computed: {
@@ -2690,11 +2704,81 @@ __webpack_require__.r(__webpack_exports__);
       return this.uploadedImageURL.length ? "background-color:unset;" : '';
     }
   },
+  mounted: function mounted() {
+    if (this.post.hasOwnProperty('id')) {
+      this.fields.title = this.post.title;
+      this.fields.content = this.post.content;
+      this.uploadedImageURL = this.post.image || '';
+    }
+  },
   methods: {
     handleCancel: function handleCancel() {
-      this.$emit('cancelEdit');
+      if (this.post.hasOwnProperty('id')) {
+        this.$emit('cancelEdit', JSON.parse(JSON.stringify(this.holdPost)));
+      } else {
+        if (this.$route.name !== 'home') {
+          // redirect to home
+          this.$router.push({
+            name: 'home'
+          });
+        }
+      }
     },
-    handleSave: function handleSave() {},
+    handleSave: function handleSave() {
+      if (this.post.hasOwnProperty('id')) {
+        this.updatePost();
+      } else {
+        this.storePost();
+      }
+    },
+    storePost: function storePost() {
+      var _this = this;
+
+      var params = {
+        title: this.fields.title,
+        content: this.fields.content,
+        image: this.fields.image,
+        successCb: function successCb(res) {
+          // reset
+          Object.assign(_this.$data, _this.$options.data.apply(_this));
+          _this.messages.general = [_this.$t('success')];
+          _this.isSuccess = true;
+        },
+        errorCb: function errorCb(error) {
+          _this.isSuccess = false;
+          _this.messages.general = [error.response.data.message];
+          _this.messages.title = error.response.data.errors.title;
+          _this.messages.content = error.response.data.errors.content;
+          _this.messages.image = error.response.data.errors.image;
+        }
+      };
+      store.dispatch(POST_STORE, params);
+    },
+    updatePost: function updatePost() {
+      var _this2 = this;
+
+      var params = {
+        id: this.post.id,
+        title: this.fields.title,
+        content: this.fields.content,
+        image: this.fields.image,
+        successCb: function successCb(res) {
+          _this2.messages.general = [_this2.$t('success')];
+          _this2.isSuccess = true;
+          _this2.holdPost = res.data.data;
+
+          _this2.handleCancel();
+        },
+        errorCb: function errorCb(error) {
+          _this2.isSuccess = false;
+          _this2.messages.general = [error.response.data.message];
+          _this2.messages.title = error.response.data.errors.title;
+          _this2.messages.content = error.response.data.errors.content;
+          _this2.messages.image = error.response.data.errors.image;
+        }
+      };
+      store.dispatch(POST_UPDATE, params);
+    },
     handleFileChange: function handleFileChange(e) {
       var files = e.target.files || e.dataTransfer.files;
       if (!files.length) return;
@@ -2702,12 +2786,12 @@ __webpack_require__.r(__webpack_exports__);
       this.createImage(files[0]);
     },
     createImage: function createImage(file) {
-      var _this = this;
+      var _this3 = this;
 
       var reader = new FileReader();
 
       reader.onload = function (e) {
-        _this.uploadedImageURL = e.target.result;
+        _this3.uploadedImageURL = e.target.result;
       };
 
       reader.readAsDataURL(file);
@@ -3206,7 +3290,7 @@ var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/
       edit: false,
       hasComment: true,
       breadCrumbLinks: [{
-        title: 'サンプルテキストサンプルテキストサンプルテキスト'
+        title: ''
       }],
       post: {},
       routePostId: Number(this.$route.params.postId)
@@ -3225,8 +3309,8 @@ var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/
       }
     }
 
-    _services_eventBus__WEBPACK_IMPORTED_MODULE_5__["eventBus"].$on('fetchedComment', function (data) {
-      _this.hasComment = data.length ? true : false;
+    _services_eventBus__WEBPACK_IMPORTED_MODULE_5__["eventBus"].$on('fetchedComment', function (data, hasAuth) {
+      _this.hasComment = data.length || hasAuth ? true : false;
     });
   },
   methods: {
@@ -3237,6 +3321,9 @@ var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/
         id: id,
         successCb: function successCb(res) {
           _this2.post = res.data.data;
+          _this2.breadCrumbLinks = [{
+            title: _this2.post.title
+          }];
         },
         errorCb: function errorCb(error) {
           _this2.$router.push({
@@ -3249,8 +3336,12 @@ var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/
     handleEditPost: function handleEditPost() {
       this.edit = true;
     },
-    handleCancelEdit: function handleCancelEdit() {
+    handleCancelEdit: function handleCancelEdit(post) {
       this.edit = false;
+      this.post = post;
+      this.breadCrumbLinks = [{
+        title: this.post.title
+      }];
     }
   }
 });
@@ -25513,7 +25604,7 @@ var render = function() {
       _vm._v(" "),
       _c(
         "div",
-        { staticClass: "form__group form__actions-comment" },
+        { staticClass: "form__group form__actions" },
         [
           _c(
             "button",
@@ -26026,7 +26117,7 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("article", { staticClass: "article__post" }, [
-    _vm.$cookies.get("token")
+    _vm.$cookies.get("token") && _vm.post.canEdit
       ? _c("div", { staticClass: "article__post-actions" }, [
           _c(
             "a",
@@ -26085,35 +26176,46 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("form", { attrs: { method: "POST", action: "/posts" } }, [
-    _c("div", { staticClass: "form__group form__actions" }, [
-      _c(
-        "a",
-        {
-          attrs: { href: "#" },
-          on: {
-            click: function($event) {
-              $event.preventDefault()
-              return _vm.handleSave($event)
-            }
-          }
-        },
-        [_vm._v(_vm._s(_vm.$t("save_post")))]
-      ),
-      _vm._v(" "),
-      _c(
-        "a",
-        {
-          attrs: { href: "#" },
-          on: {
-            click: function($event) {
-              $event.preventDefault()
-              return _vm.handleCancel($event)
-            }
-          }
-        },
-        [_vm._v(_vm._s(_vm.$t("cancel")))]
-      )
-    ]),
+    _c(
+      "div",
+      { staticClass: "form__group form__actions" },
+      [
+        _c("div", [
+          _c(
+            "a",
+            {
+              attrs: { href: "#" },
+              on: {
+                click: function($event) {
+                  $event.preventDefault()
+                  return _vm.handleSave($event)
+                }
+              }
+            },
+            [_vm._v(_vm._s(_vm.$t("save_post")))]
+          ),
+          _vm._v(" "),
+          _c(
+            "a",
+            {
+              attrs: { href: "#" },
+              on: {
+                click: function($event) {
+                  $event.preventDefault()
+                  return _vm.handleCancel($event)
+                }
+              }
+            },
+            [_vm._v(_vm._s(_vm.$t("cancel")))]
+          )
+        ]),
+        _vm._v(" "),
+        _c("messages-list", {
+          attrs: { items: _vm.messages.general, isSuccess: _vm.isSuccess }
+        })
+      ],
+      1
+    ),
     _vm._v(" "),
     _vm._m(0),
     _vm._v(" "),
@@ -26130,7 +26232,7 @@ var render = function() {
               expression: "fields.title"
             }
           ],
-          staticClass: "form__field form__title",
+          staticClass: "form__field form__field-title",
           attrs: { required: "", placeholder: _vm.$t("title"), rows: "3" },
           domProps: { value: _vm.fields.title },
           on: {
@@ -26158,7 +26260,7 @@ var render = function() {
         _c("input", {
           staticClass: "form__field",
           style: _vm.fileUploadBackground,
-          attrs: { type: "file", required: "", accept: "image/*" },
+          attrs: { type: "file", required: "", accept: ".jpg, .png, .gif" },
           on: { change: _vm.handleFileChange }
         }),
         _vm._v(" "),
@@ -26499,7 +26601,7 @@ var render = function() {
           [
             _c("img", {
               staticClass: "slider__item-image",
-              attrs: { src: item.image }
+              attrs: { src: item.image || "/img/article/1500x650.jpg" }
             }),
             _vm._v(" "),
             _c("div", { staticClass: "slider__item-text" }, [
@@ -26592,7 +26694,12 @@ var render = function() {
     [
       _c("breadcrumb", { attrs: { links: _vm.breadCrumbLinks } }),
       _vm._v(" "),
-      _c("section", { staticClass: "container" }, [_c("post-form")], 1)
+      _c(
+        "section",
+        { staticClass: "container" },
+        [_c("post-form", { attrs: { post: {} } })],
+        1
+      )
     ],
     1
   )
@@ -45136,14 +45243,21 @@ var actions = (_actions = {}, _defineProperty(_actions, ACTION.POST_LIST, functi
       image = _ref4.image,
       successCb = _ref4.successCb,
       errorCb = _ref4.errorCb;
-  var params = {
-    title: title,
-    content: content,
-    image: image
+  var config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   };
-  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].post('posts', params, function (res) {
+  var formData = new FormData();
+  formData.append('title', title);
+  formData.append('content', content);
+  formData.append('image', image);
+  axios.post('posts', formData, config).then(function (res) {
+    commit(MUTATION.POST_STORE, {
+      post: res.data.data
+    });
     successCb(res);
-  }, function (error) {
+  })["catch"](function (error) {
     errorCb(error);
   });
 }), _defineProperty(_actions, ACTION.POST_SHOW, function (_ref5, _ref6) {
@@ -45158,19 +45272,28 @@ var actions = (_actions = {}, _defineProperty(_actions, ACTION.POST_LIST, functi
   });
 }), _defineProperty(_actions, ACTION.POST_UPDATE, function (_ref7, _ref8) {
   var commit = _ref7.commit;
-  var title = _ref8.title,
+  var id = _ref8.id,
+      title = _ref8.title,
       content = _ref8.content,
       image = _ref8.image,
       successCb = _ref8.successCb,
       errorCb = _ref8.errorCb;
-  var params = {
-    title: title,
-    content: content,
-    image: image
+  var config = {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'X-HTTP-Method-Override': 'PUT'
+    }
   };
-  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].put('posts/' + id, params, function (res) {
+  var formData = new FormData();
+  formData.append('title', title);
+  formData.append('content', content);
+  formData.append('image', image);
+  axios.post('posts/' + id, formData, config).then(function (res) {
+    commit(MUTATION.POST_STORE, {
+      post: res.data.data
+    });
     successCb(res);
-  }, function (error) {
+  })["catch"](function (error) {
     errorCb(error);
   });
 }), _defineProperty(_actions, ACTION.POST_DELETE, function (_ref9, _ref10) {

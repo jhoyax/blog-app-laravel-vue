@@ -1,7 +1,7 @@
 <template>
     <div class="slider">
         <div :class="addActiveClass('slider__item', item.active)" v-for="(item, index) in sliderItems" :key="index">
-            <img :src="item.image" class="slider__item-image"/>
+            <img :src="item.image || '/img/article/1500x650.jpg'" class="slider__item-image"/>
             <div class="slider__item-text">
                 <span>{{item.title}}</span>
                 <time :datetime="item.date">{{$formatter('dashToDot', item.date)}}</time>

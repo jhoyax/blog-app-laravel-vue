@@ -51,7 +51,7 @@ export default {
                 commentableId: this.commentableId,
                 page: this.currentPage,
                 successCb: res => {
-                    eventBus.$emit('fetchedComment', JSON.parse(JSON.stringify(res.data.data)))
+                    eventBus.$emit('fetchedComment', JSON.parse(JSON.stringify(res.data.data)), res.data.hasAuth)
                 },
                 errorCb: error => {}
             };

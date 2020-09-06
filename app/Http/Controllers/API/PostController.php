@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PostResource;
 use App\Http\Requests\PostStoreRequest;
+use App\Http\Requests\PostUpdateRequest;
 use App\Traits\HasUpload;
 
 class PostController extends Controller
@@ -63,12 +64,12 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\PostStoreRequest  $request
+     * @param  \App\Http\Requests\PostUpdateRequest  $request
      * @param  \App\Post  $post
      * 
      * @return \Illuminate\Http\Response
      */
-    public function update(PostStoreRequest $request, Post $post)
+    public function update(PostUpdateRequest $request, Post $post)
     {
         $oldImage = $post->image;
 

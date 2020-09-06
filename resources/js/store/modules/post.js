@@ -31,12 +31,20 @@ const actions = {
       });
     },
     [ACTION.POST_STORE]({commit}, {title, content, image, successCb, errorCb}) {
-      let params = {title: title, content: content, image: image}
-      http.post('posts', params, res => {
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }
+
+      let formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('image', image);
+
+      axios.post('posts', formData, config)
+      .then((res) => {
+        commit(MUTATION.POST_STORE, {post: res.data.data});
         successCb(res);
-      }, error => {
-        errorCb(error);
-      });
+      }).catch((error) => { errorCb(error); });
     },
     [ACTION.POST_SHOW]({commit}, {id, successCb, errorCb}) {
       http.get('posts/' + id, res => {
@@ -45,13 +53,21 @@ const actions = {
         errorCb(error);
       });
     },
-    [ACTION.POST_UPDATE]({commit}, {title, content, image, successCb, errorCb}) {
-      let params = {title: title, content: content, image: image}
-      http.put('posts/' + id, params, res => {
+    [ACTION.POST_UPDATE]({commit}, {id, title, content, image, successCb, errorCb}) {
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data', 'X-HTTP-Method-Override': 'PUT' }
+      }
+
+      let formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      formData.append('image', image);
+
+      axios.post('posts/' + id, formData, config)
+      .then((res) => {
+        commit(MUTATION.POST_STORE, {post: res.data.data});
         successCb(res);
-      }, error => {
-        errorCb(error);
-      });
+      }).catch((error) => { errorCb(error); });
     },
     [ACTION.POST_DELETE]({commit}, {successCb, errorCb}) {
       let params = {}

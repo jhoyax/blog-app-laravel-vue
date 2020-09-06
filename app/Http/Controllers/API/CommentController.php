@@ -9,6 +9,7 @@ use App\Http\Requests\CommentIndexRequest;
 use App\Http\Resources\CommentResource;
 use App\Http\Requests\CommentStoreRequest;
 use App\Http\Requests\CommentUpdateRequest;
+use App\Http\Resources\CommentCollection;
 
 class CommentController extends Controller
 {
@@ -21,6 +22,8 @@ class CommentController extends Controller
      */
     public function index(CommentIndexRequest $request)
     {
+        $user = $request->user();
+
         $perPage = $request->input('per_page', 10);
         $comments = Comment::parent()
                     ->commentable($request->input('commentable_type'), $request->input('commentable_id'))
@@ -28,7 +31,7 @@ class CommentController extends Controller
                     ->with('childrenComments')
                     ->paginate($perPage);
 
-        return CommentResource::collection($comments);
+        return new CommentCollection($comments);
     }
 
     /**
