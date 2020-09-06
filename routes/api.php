@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::namespace('API')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::post('logout', 'AuthenticateUserController@logout');
+
+        Route::resource('posts', 'PostController');
+        Route::resource('comments', 'CommentController');
     });
 
     Route::post('login', 'AuthenticateUserController@login');
