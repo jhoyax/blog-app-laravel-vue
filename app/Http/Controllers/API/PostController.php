@@ -22,9 +22,10 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request->input('page', 10);
+        $perPage = $request->input('per_page', 10);
+        $posts = Post::orderBy('created_at', 'desc')->paginate($perPage);
 
-        return PostResource::collection(Post::paginate($page));
+        return PostResource::collection($posts);
     }
 
     /**

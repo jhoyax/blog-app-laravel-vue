@@ -317,7 +317,8 @@ button {
 }
 
 hr {
-  border: 1px solid #d6d6d6;
+  border: 0.5px solid #d6d6d6;
+  background-color: #d6d6d6;
 }
 
 @-webkit-keyframes fadeInFromNone {
@@ -502,6 +503,14 @@ section {
 
 .slider {
   position: relative;
+  max-height: 650px;
+  overflow: hidden;
+}
+
+@media only screen and (max-width: 767px) {
+  .slider {
+    max-height: 300px;
+  }
 }
 
 .slider .slider__arrow {
@@ -728,8 +737,12 @@ article time {
   margin-bottom: 1em;
 }
 
-.article__post img {
+.article__post-image {
   height: 500px;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  margin-bottom: 2em;
 }
 
 .article__post-actions {
@@ -750,6 +763,11 @@ article time {
   white-space: pre-wrap;
   white-space: pre-line;
   font-family: "Roboto", sans-serif;
+}
+
+.article__comment-content {
+  white-space: pre-wrap;
+  white-space: pre-line;
 }
 
 footer {
@@ -889,6 +907,12 @@ form button {
   text-decoration: underline;
   margin-left: 1em;
   text-transform: none;
+}
+
+.form__actions-comment {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .form__file-upload {

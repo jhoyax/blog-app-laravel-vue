@@ -14,8 +14,9 @@
 
 <script>
 import Logo from './Logo';
-const store = require('../store/').default;
 import { eventBus } from '../services/eventBus';
+
+const store = require('../store/').default;
 const {LOGOUT} = require('../store/action-types');
 
 export default {

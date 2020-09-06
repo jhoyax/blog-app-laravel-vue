@@ -4,7 +4,7 @@
             <img :src="item.image" class="slider__item-image"/>
             <div class="slider__item-text">
                 <span>{{item.title}}</span>
-                <time :datetime="item.date">{{$dashToDot(item.date)}}</time>
+                <time :datetime="item.date">{{$formatter('dashToDot', item.date)}}</time>
             </div>
         </div>
         <a href="#" 
@@ -24,31 +24,24 @@
 </template>
 
 <script>
+import { eventBus } from '../services/eventBus';
+
 export default {
     name: 'Slider',
     data() {
         return {
-            sliderItems: [
-                {
-                    image: '/img/slider/slider1.jpg',
-                    title: 'Title Here 1',
-                    date: '2019-06-19',
-                    active: false
-                },
-                {
-                    image: '/img/slider/slider2.jpg',
-                    title: 'Title Here 2',
-                    date: '2019-06-20',
-                    active: false
-                },
-                {
-                    image: '/img/slider/slider3.jpg',
-                    title: 'サンプルテキストサンプルテキストサンプルテキスト',
-                    date: '2019-06-21',
-                    active: true
-                }
-            ]
-        };
+            sliderItems: []
+        }
+    },
+    mounted() {
+        eventBus.$on('fetchedPost', (data) => {
+            if (this.sliderItems.length === 0) {
+                this.sliderItems = data.splice(0, 3).map((post, index) => {
+                    post.active = (index === 0 ? true : false);
+                    return post;
+                });
+            }
+        });
     },
     methods: {
         addActiveClass(className, active = false) {

@@ -1,5 +1,11 @@
 .slider {
     position: relative;
+    max-height: 650px;
+    overflow: hidden;
+    
+    @include max-screen($phone-max-width) {
+        max-height: 300px;
+    }
 
     .slider__arrow {
         position: absolute;

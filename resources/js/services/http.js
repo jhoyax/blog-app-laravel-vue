@@ -51,7 +51,7 @@ export default {
       // ...get the token from the header or response data if exists, and save it.
       const token = response.headers['Authorization'] || response.data['token'];
       if (token) {
-        $cookies.set('token', token, response.data['expires_at'])
+        $cookies.set('token', token, response.data['expires_at']);
       }
 
       return response

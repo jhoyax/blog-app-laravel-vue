@@ -50,10 +50,6 @@ article {
     }
 }
 
-.article__comment-content {
-
-}
-
 .article__post {
     border: none;
     padding: 0;
@@ -67,10 +63,14 @@ article {
     h1 {
         margin-bottom: 1em;
     }
+}
 
-    img {
-        height: 500px;
-    }
+.article__post-image {
+    height: 500px;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin-bottom: 2em;
 }
 
 .article__post-actions {
@@ -91,4 +91,9 @@ article {
     white-space: pre-wrap;
     white-space: pre-line;
     font-family: $root-font-family;
+}
+
+.article__comment-content {
+    white-space: pre-wrap;
+    white-space: pre-line;
 }

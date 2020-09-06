@@ -61,6 +61,12 @@ form {
     }
 }
 
+.form__actions-comment {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
 .form__file-upload {
     overflow: hidden;
     height: 500px;

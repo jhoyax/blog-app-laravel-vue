@@ -2020,8 +2020,11 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CommentForm__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CommentForm */ "./resources/js/components/CommentForm.vue");
-//
-//
+/* harmony import */ var _mixins_commentable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../mixins/commentable */ "./resources/js/mixins/commentable.js");
+/* harmony import */ var _services_eventBus__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/eventBus */ "./resources/js/services/eventBus.js");
+/* harmony import */ var javascript_time_ago__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! javascript-time-ago */ "./node_modules/javascript-time-ago/index.js");
+/* harmony import */ var javascript_time_ago_locale_en__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! javascript-time-ago/locale/en */ "./node_modules/javascript-time-ago/locale/en/index.js");
+/* harmony import */ var javascript_time_ago_locale_en__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(javascript_time_ago_locale_en__WEBPACK_IMPORTED_MODULE_4__);
 //
 //
 //
@@ -2040,23 +2043,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
+
+
+
+javascript_time_ago__WEBPACK_IMPORTED_MODULE_3__["default"].addLocale(javascript_time_ago_locale_en__WEBPACK_IMPORTED_MODULE_4___default.a);
+var timeAgo = new javascript_time_ago__WEBPACK_IMPORTED_MODULE_3__["default"]('en-US');
+
+var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
+
+var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
+    COMMENT_LIST = _require.COMMENT_LIST;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'Comment',
+  mixins: [_mixins_commentable__WEBPACK_IMPORTED_MODULE_1__["default"]],
   components: {
     CommentForm: _CommentForm__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   data: function data() {
     return {
-      comments: [{
-        user: 'user 1',
-        content: 'サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        user: 'Luffy',
-        content: 'サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }]
+      currentPage: 1,
+      timeAgo: timeAgo
     };
+  },
+  mounted: function mounted() {
+    this.fetchComments();
+  },
+  methods: {
+    fetchComments: function fetchComments() {
+      var params = {
+        commentableType: this.commentableType,
+        commentableId: this.commentableId,
+        page: this.currentPage,
+        successCb: function successCb(res) {
+          _services_eventBus__WEBPACK_IMPORTED_MODULE_2__["eventBus"].$emit('fetchedComment', JSON.parse(JSON.stringify(res.data.data)));
+        },
+        errorCb: function errorCb(error) {}
+      };
+      store.dispatch(COMMENT_LIST, params);
+    },
+    getTimeAgo: function getTimeAgo(timestamp) {
+      return timeAgo.format(Date.now() - (Date.now() / 1000 - timestamp) * 1000);
+    }
   }
 });
 
@@ -2072,6 +2101,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MessagesList__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MessagesList */ "./resources/js/components/MessagesList.vue");
+/* harmony import */ var _mixins_commentable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../mixins/commentable */ "./resources/js/mixins/commentable.js");
 //
 //
 //
@@ -2093,8 +2123,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
+
+var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
+
+var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
+    COMMENT_STORE = _require.COMMENT_STORE;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'CommentForm',
+  mixins: [_mixins_commentable__WEBPACK_IMPORTED_MODULE_1__["default"]],
   components: {
     MessagesList: _MessagesList__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -2111,7 +2149,27 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    handleSubmit: function handleSubmit() {}
+    handleSubmit: function handleSubmit() {
+      var _this = this;
+
+      var params = {
+        commentableType: this.commentableType,
+        commentableId: this.commentableId,
+        content: this.fields.content,
+        successCb: function successCb(res) {
+          // reset
+          Object.assign(_this.$data, _this.$options.data.apply(_this));
+          _this.messages.general = [_this.$t('success')];
+          _this.isSuccess = true;
+        },
+        errorCb: function errorCb(error) {
+          _this.isSuccess = false;
+          _this.messages.general = [error.response.data.message];
+          _this.messages.content = error.response.data.errors.content;
+        }
+      };
+      store.dispatch(COMMENT_STORE, params);
+    }
   }
 });
 
@@ -2200,9 +2258,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 
+
 var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
-
-
 
 var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
     LOGOUT = _require.LOGOUT;
@@ -2306,9 +2363,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 
+
 var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
-
-
 
 var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
     LOGIN = _require.LOGIN;
@@ -2466,37 +2522,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
+var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
+
+var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
+    POST_LIST = _require.POST_LIST;
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'News',
   data: function data() {
     return {
-      newsItems: [{
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }, {
-        image: '/img/article/news.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21'
-      }],
-      hasUser: false
+      hasUser: false,
+      currentPage: 1,
+      lastPage: 0
     };
+  },
+  computed: {
+    showLoadMore: function showLoadMore() {
+      return this.currentPage < this.lastPage;
+    }
   },
   mounted: function mounted() {
     var _this = this;
@@ -2507,6 +2551,28 @@ __webpack_require__.r(__webpack_exports__);
 
     if ($cookies.get('token')) {
       this.hasUser = true;
+    }
+
+    this.fetchPosts();
+  },
+  methods: {
+    fetchPosts: function fetchPosts() {
+      var _this2 = this;
+
+      var params = {
+        page: this.currentPage,
+        concat: true,
+        successCb: function successCb(res) {
+          _this2.lastPage = res.data.meta.last_page;
+          _services_eventBus__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$emit('fetchedPost', JSON.parse(JSON.stringify(res.data.data)));
+        },
+        errorCb: function errorCb(error) {}
+      };
+      store.dispatch(POST_LIST, params);
+    },
+    handleLoadMore: function handleLoadMore() {
+      this.currentPage += 1;
+      this.fetchPosts();
     }
   }
 });
@@ -2522,6 +2588,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _mixins_singlePost__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../mixins/singlePost */ "./resources/js/mixins/singlePost.js");
 //
 //
 //
@@ -2533,13 +2600,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'PostForm',
+  mixins: [_mixins_singlePost__WEBPACK_IMPORTED_MODULE_0__["default"]],
   methods: {
     handleEditPost: function handleEditPost() {
       this.$emit('editPost');
@@ -2633,7 +2697,6 @@ __webpack_require__.r(__webpack_exports__);
     handleSave: function handleSave() {},
     handleFileChange: function handleFileChange(e) {
       var files = e.target.files || e.dataTransfer.files;
-      console.log(files);
       if (!files.length) return;
       this.fields.image = files[0];
       this.createImage(files[0]);
@@ -2706,9 +2769,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 
+
 var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
-
-
 
 var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
     REGISTER = _require.REGISTER;
@@ -2827,6 +2889,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _services_eventBus__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/eventBus */ "./resources/js/services/eventBus.js");
 //
 //
 //
@@ -2852,27 +2915,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'Slider',
   data: function data() {
     return {
-      sliderItems: [{
-        image: '/img/slider/slider1.jpg',
-        title: 'Title Here 1',
-        date: '2019-06-19',
-        active: false
-      }, {
-        image: '/img/slider/slider2.jpg',
-        title: 'Title Here 2',
-        date: '2019-06-20',
-        active: false
-      }, {
-        image: '/img/slider/slider3.jpg',
-        title: 'サンプルテキストサンプルテキストサンプルテキスト',
-        date: '2019-06-21',
-        active: true
-      }]
+      sliderItems: []
     };
+  },
+  mounted: function mounted() {
+    var _this = this;
+
+    _services_eventBus__WEBPACK_IMPORTED_MODULE_0__["eventBus"].$on('fetchedPost', function (data) {
+      if (_this.sliderItems.length === 0) {
+        _this.sliderItems = data.splice(0, 3).map(function (post, index) {
+          post.active = index === 0 ? true : false;
+          return post;
+        });
+      }
+    });
   },
   methods: {
     addActiveClass: function addActiveClass(className) {
@@ -3104,6 +3165,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_PostDisplay__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/PostDisplay */ "./resources/js/components/PostDisplay.vue");
 /* harmony import */ var _components_Comment__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/Comment */ "./resources/js/components/Comment.vue");
 /* harmony import */ var _mixins_authOptions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../mixins/authOptions */ "./resources/js/mixins/authOptions.js");
+/* harmony import */ var _services_eventBus__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../services/eventBus */ "./resources/js/services/eventBus.js");
+//
 //
 //
 //
@@ -3121,6 +3184,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+var store = __webpack_require__(/*! ../store/ */ "./resources/js/store/index.js")["default"];
+
+var _require = __webpack_require__(/*! ../store/action-types */ "./resources/js/store/action-types.js"),
+    POST_SHOW = _require.POST_SHOW;
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'SinglePost',
@@ -3134,12 +3204,48 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       edit: false,
+      hasComment: true,
       breadCrumbLinks: [{
         title: 'サンプルテキストサンプルテキストサンプルテキスト'
-      }]
+      }],
+      post: {},
+      routePostId: Number(this.$route.params.postId)
     };
   },
+  mounted: function mounted() {
+    var _this = this;
+
+    if ('postId' in this.$route.params) {
+      if (isNaN(this.routePostId)) {
+        this.$router.push({
+          name: 'notFound'
+        });
+      } else {
+        this.fetchPost(this.routePostId);
+      }
+    }
+
+    _services_eventBus__WEBPACK_IMPORTED_MODULE_5__["eventBus"].$on('fetchedComment', function (data) {
+      _this.hasComment = data.length ? true : false;
+    });
+  },
   methods: {
+    fetchPost: function fetchPost(id) {
+      var _this2 = this;
+
+      var params = {
+        id: id,
+        successCb: function successCb(res) {
+          _this2.post = res.data.data;
+        },
+        errorCb: function errorCb(error) {
+          _this2.$router.push({
+            name: 'notFound'
+          });
+        }
+      };
+      store.dispatch(POST_SHOW, params);
+    },
     handleEditPost: function handleEditPost() {
       this.edit = true;
     },
@@ -3148,6 +3254,1479 @@ __webpack_require__.r(__webpack_exports__);
     }
   }
 });
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/index.js":
+/*!***************************************************!*\
+  !*** ./node_modules/javascript-time-ago/index.js ***!
+  \***************************************************/
+/*! exports provided: default, intlDateTimeFormatSupported, intlDateTimeFormatSupportedLocale */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _modules_JavascriptTimeAgo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/JavascriptTimeAgo */ "./node_modules/javascript-time-ago/modules/JavascriptTimeAgo.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _modules_JavascriptTimeAgo__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _modules_locale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/locale */ "./node_modules/javascript-time-ago/modules/locale.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "intlDateTimeFormatSupported", function() { return _modules_locale__WEBPACK_IMPORTED_MODULE_1__["intlDateTimeFormatSupported"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "intlDateTimeFormatSupportedLocale", function() { return _modules_locale__WEBPACK_IMPORTED_MODULE_1__["intlDateTimeFormatSupportedLocale"]; });
+
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale-more-styles/en/long-convenient.json":
+/*!*************************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale-more-styles/en/long-convenient.json ***!
+  \*************************************************************************************/
+/*! exports provided: year, quarter, month, week, day, hour, minute, second, now, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"previous\":\"last year\",\"current\":\"this year\",\"next\":\"next year\",\"past\":{\"one\":\"a year ago\",\"other\":\"{0} years ago\"},\"future\":{\"one\":\"in a year\",\"other\":\"in {0} years\"}},\"quarter\":{\"previous\":\"last quarter\",\"current\":\"this quarter\",\"next\":\"next quarter\",\"past\":{\"one\":\"a quarter ago\",\"other\":\"{0} quarters ago\"},\"future\":{\"one\":\"in a quarter\",\"other\":\"in {0} quarters\"}},\"month\":{\"previous\":\"last month\",\"current\":\"this month\",\"next\":\"next month\",\"past\":{\"one\":\"a month ago\",\"other\":\"{0} months ago\"},\"future\":{\"one\":\"in a month\",\"other\":\"in {0} months\"}},\"week\":{\"previous\":\"last week\",\"current\":\"this week\",\"next\":\"next week\",\"past\":{\"one\":\"a week ago\",\"other\":\"{0} weeks ago\"},\"future\":{\"one\":\"in a week\",\"other\":\"in {0} weeks\"}},\"day\":{\"previous\":\"yesterday\",\"current\":\"today\",\"next\":\"tomorrow\",\"past\":{\"one\":\"a day ago\",\"other\":\"{0} days ago\"},\"future\":{\"one\":\"in a day\",\"other\":\"in {0} days\"}},\"hour\":{\"current\":\"this hour\",\"past\":{\"one\":\"an hour ago\",\"other\":\"{0} hours ago\"},\"future\":{\"one\":\"in an hour\",\"other\":\"in {0} hours\"}},\"minute\":{\"current\":\"this minute\",\"past\":{\"one\":\"a minute ago\",\"other\":\"{0} minutes ago\"},\"future\":{\"one\":\"in a minute\",\"other\":\"in {0} minutes\"}},\"second\":{\"current\":\"now\",\"past\":{\"one\":\"a second ago\",\"other\":\"{0} seconds ago\"},\"future\":{\"one\":\"in a second\",\"other\":\"in {0} seconds\"}},\"now\":{\"future\":\"in a moment\",\"past\":\"just now\"}}");
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale-more-styles/en/long-time.json":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale-more-styles/en/long-time.json ***!
+  \*******************************************************************************/
+/*! exports provided: year, month, week, day, hour, minute, second, now, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"one\":\"{0} year\",\"other\":\"{0} years\"},\"month\":{\"one\":\"{0} month\",\"other\":\"{0} months\"},\"week\":{\"one\":\"{0} week\",\"other\":\"{0} weeks\"},\"day\":{\"one\":\"{0} day\",\"other\":\"{0} days\"},\"hour\":{\"one\":\"{0} hour\",\"other\":\"{0} hours\"},\"minute\":{\"one\":\"{0} minute\",\"other\":\"{0} minutes\"},\"second\":{\"one\":\"{0} second\",\"other\":\"{0} seconds\"},\"now\":{\"future\":\"in a moment\",\"past\":\"just now\"}}");
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale-more-styles/en/short-convenient.json":
+/*!**************************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale-more-styles/en/short-convenient.json ***!
+  \**************************************************************************************/
+/*! exports provided: year, quarter, month, week, day, hour, minute, second, now, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"previous\":\"last yr.\",\"current\":\"this yr.\",\"next\":\"next yr.\",\"past\":\"{0} yr. ago\",\"future\":\"in {0} yr.\"},\"quarter\":{\"previous\":\"last qtr.\",\"current\":\"this qtr.\",\"next\":\"next qtr.\",\"past\":{\"one\":\"{0} qtr. ago\",\"other\":\"{0} qtrs. ago\"},\"future\":{\"one\":\"in {0} qtr.\",\"other\":\"in {0} qtrs.\"}},\"month\":{\"previous\":\"last mo.\",\"current\":\"this mo.\",\"next\":\"next mo.\",\"past\":\"{0} mo. ago\",\"future\":\"in {0} mo.\"},\"week\":{\"previous\":\"last wk.\",\"current\":\"this wk.\",\"next\":\"next wk.\",\"past\":\"{0} wk. ago\",\"future\":\"in {0} wk.\"},\"day\":{\"previous\":\"yesterday\",\"current\":\"today\",\"next\":\"tomorrow\",\"past\":{\"one\":\"{0} day ago\",\"other\":\"{0} days ago\"},\"future\":{\"one\":\"in {0} day\",\"other\":\"in {0} days\"}},\"hour\":{\"current\":\"this hour\",\"past\":\"{0} hr. ago\",\"future\":\"in {0} hr.\"},\"minute\":{\"current\":\"this minute\",\"past\":\"{0} min. ago\",\"future\":\"in {0} min.\"},\"second\":{\"current\":\"now\",\"past\":\"{0} sec. ago\",\"future\":\"in {0} sec.\"},\"now\":{\"future\":\"in a moment\",\"past\":\"just now\"}}");
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale-more-styles/en/short-time.json":
+/*!********************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale-more-styles/en/short-time.json ***!
+  \********************************************************************************/
+/*! exports provided: year, month, week, day, hour, minute, second, now, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":\"{0} yr.\",\"month\":\"{0} mo.\",\"week\":\"{0} wk.\",\"day\":{\"one\":\"{0} day\",\"other\":\"{0} days\"},\"hour\":\"{0} hr.\",\"minute\":\"{0} min.\",\"second\":\"{0} sec.\",\"now\":\"now\"}");
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale-more-styles/en/tiny.json":
+/*!**************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale-more-styles/en/tiny.json ***!
+  \**************************************************************************/
+/*! exports provided: year, month, week, day, hour, minute, second, now, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":\"{0}yr\",\"month\":\"{0}mo\",\"week\":\"{0}wk\",\"day\":\"{0}d\",\"hour\":\"{0}h\",\"minute\":\"{0}m\",\"second\":\"{0}s\",\"now\":\"now\"}");
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/locale/en/index.js":
+/*!*************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/locale/en/index.js ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var locale = __webpack_require__(/*! relative-time-format/locale/en */ "./node_modules/relative-time-format/locale/en/index.js")
+
+module.exports = {
+	locale: locale.locale,
+	// Standard styles.
+	long: locale.long,
+	short: locale.short,
+	narrow: locale.narrow,
+	// Additional styles.
+	'short-time': __webpack_require__(/*! ../../locale-more-styles/en/short-time.json */ "./node_modules/javascript-time-ago/locale-more-styles/en/short-time.json"),
+	'short-convenient': __webpack_require__(/*! ../../locale-more-styles/en/short-convenient.json */ "./node_modules/javascript-time-ago/locale-more-styles/en/short-convenient.json"),
+	'long-time': __webpack_require__(/*! ../../locale-more-styles/en/long-time.json */ "./node_modules/javascript-time-ago/locale-more-styles/en/long-time.json"),
+	'long-convenient': __webpack_require__(/*! ../../locale-more-styles/en/long-convenient.json */ "./node_modules/javascript-time-ago/locale-more-styles/en/long-convenient.json"),
+	'tiny': __webpack_require__(/*! ../../locale-more-styles/en/tiny.json */ "./node_modules/javascript-time-ago/locale-more-styles/en/tiny.json"),
+	// Quantifier.
+	quantify: locale.quantify
+}
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/JavascriptTimeAgo.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/JavascriptTimeAgo.js ***!
+  \***********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return JavascriptTimeAgo; });
+/* harmony import */ var relative_time_format__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! relative-time-format */ "./node_modules/relative-time-format/index.js");
+/* harmony import */ var _cache__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./cache */ "./node_modules/javascript-time-ago/modules/cache.js");
+/* harmony import */ var _grade__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./grade */ "./node_modules/javascript-time-ago/modules/grade.js");
+/* harmony import */ var _locale__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./locale */ "./node_modules/javascript-time-ago/modules/locale.js");
+/* harmony import */ var _style__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./style */ "./node_modules/javascript-time-ago/modules/style/index.js");
+/* harmony import */ var _LocaleDataStore__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./LocaleDataStore */ "./node_modules/javascript-time-ago/modules/LocaleDataStore.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+
+
+
+
+
+ // const EXTRA_STYLES = [
+// 	'long-convenient',
+// 	'long-time',
+// 	'short-convenient',
+// 	'short-time',
+// 	'tiny'
+// ]
+// Valid time units.
+
+var UNITS = ['now', // The rest are the same as in `Intl.RelativeTimeFormat`.
+'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year'];
+
+var JavascriptTimeAgo =
+/*#__PURE__*/
+function () {
+  /**
+   * @param {(string|string[])} locales=[] - Preferred locales (or locale).
+   */
+  function JavascriptTimeAgo() {
+    var locales = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+    _classCallCheck(this, JavascriptTimeAgo);
+
+    // Convert `locales` to an array.
+    if (typeof locales === 'string') {
+      locales = [locales];
+    } // Choose the most appropriate locale
+    // (one of the previously added ones)
+    // based on the list of preferred `locales` supplied by the user.
+
+
+    this.locale = Object(_locale__WEBPACK_IMPORTED_MODULE_3__["default"])(locales.concat(relative_time_format__WEBPACK_IMPORTED_MODULE_0__["default"].getDefaultLocale()), _LocaleDataStore__WEBPACK_IMPORTED_MODULE_5__["getLocaleData"]); // Use `Intl.NumberFormat` for formatting numbers (when available).
+
+    if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
+      this.numberFormat = new Intl.NumberFormat(this.locale);
+    } // Cache `Intl.RelativeTimeFormat` instance.
+
+
+    this.relativeTimeFormatCache = new _cache__WEBPACK_IMPORTED_MODULE_1__["default"]();
+  } // Formats the relative date/time.
+  //
+  // @return {string} Returns the formatted relative date/time.
+  //
+  // @param {(Object|string)} [style] - Relative date/time formatting style.
+  //
+  // @param {string[]} [style.units] - A list of allowed time units
+  //                                  (e.g. ['second', 'minute', 'hour', …])
+  //
+  // @param {Function} [style.custom] - `function ({ elapsed, time, date, now })`.
+  //                                    If this function returns a value, then
+  //                                    the `.format()` call will return that value.
+  //                                    Otherwise it has no effect.
+  //
+  // @param {string} [style.flavour] - e.g. "long", "short", "tiny", etc.
+  //
+  // @param {Object[]} [style.gradation] - Time scale gradation steps.
+  //
+  // @param {string} style.gradation[].unit - Time interval measurement unit.
+  //                                          (e.g. ['second', 'minute', 'hour', …])
+  //
+  // @param {Number} style.gradation[].factor - Time interval measurement unit factor.
+  //                                            (e.g. `60` for 'minute')
+  //
+  // @param {Number} [style.gradation[].granularity] - A step for the unit's "amount" value.
+  //                                                   (e.g. `5` for '0 minutes', '5 minutes', etc)
+  //
+  // @param {Number} [style.gradation[].threshold] - Time interval measurement unit threshold.
+  //                                                 (e.g. `45` seconds for 'minute').
+  //                                                 There can also be specific `threshold_[unit]`
+  //                                                 thresholds for fine-tuning.
+  //
+
+
+  _createClass(JavascriptTimeAgo, [{
+    key: "format",
+    value: function format(input) {
+      var style = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _style__WEBPACK_IMPORTED_MODULE_4__["defaultStyle"];
+
+      if (typeof style === 'string') {
+        switch (style) {
+          case 'twitter':
+            style = _style__WEBPACK_IMPORTED_MODULE_4__["twitterStyle"];
+            break;
+
+          case 'time':
+            style = _style__WEBPACK_IMPORTED_MODULE_4__["timeStyle"];
+            break;
+
+          default:
+            style = _style__WEBPACK_IMPORTED_MODULE_4__["defaultStyle"];
+        }
+      }
+
+      var _getDateAndTimeBeingF = getDateAndTimeBeingFormatted(input),
+          date = _getDateAndTimeBeingF.date,
+          time = _getDateAndTimeBeingF.time; // Get locale messages for this formatting flavour
+
+
+      var _this$getLocaleData = this.getLocaleData(style.flavour),
+          flavour = _this$getLocaleData.flavour,
+          localeData = _this$getLocaleData.localeData; // Can pass a custom `now`, e.g. for testing purposes.
+      // Technically it doesn't belong to `style`
+      // but since this is an undocumented internal feature,
+      // taking it from the `style` argument will do (for now).
+
+
+      var now = style.now || Date.now(); // how much time elapsed (in seconds)
+
+      var elapsed = (now - time) / 1000; // in seconds
+      // `custom` – A function of `{ elapsed, time, date, now, locale }`.
+      // If this function returns a value, then the `.format()` call will return that value.
+      // Otherwise the relative date/time is formatted as usual.
+      // This feature is currently not used anywhere and is here
+      // just for providing the ultimate customization point
+      // in case anyone would ever need that. Prefer using
+      // `gradation[step].format(value, locale)` instead.
+      //
+      // I guess `custom` is deprecated and will be removed
+      // in some future major version release.
+      //
+
+      if (style.custom) {
+        var custom = style.custom({
+          now: now,
+          date: date,
+          time: time,
+          elapsed: elapsed,
+          locale: this.locale
+        });
+
+        if (custom !== undefined) {
+          return custom;
+        }
+      } // Available time interval measurement units.
+
+
+      var units = getTimeIntervalMeasurementUnits(localeData, style.units); // If no available time unit is suitable, just output an empty string.
+
+      if (units.length === 0) {
+        console.error("Units \"".concat(units.join(', '), "\" were not found in locale data for \"").concat(this.locale, "\"."));
+        return '';
+      } // Choose the appropriate time measurement unit
+      // and get the corresponding rounded time amount.
+
+
+      var step = Object(_grade__WEBPACK_IMPORTED_MODULE_2__["default"])(elapsed, now, units, style.gradation); // If no time unit is suitable, just output an empty string.
+      // E.g. when "now" unit is not available
+      // and "second" has a threshold of `0.5`
+      // (e.g. the "canonical" grading scale).
+
+      if (!step) {
+        return '';
+      }
+
+      if (step.format) {
+        return step.format(date || time, this.locale);
+      }
+
+      var unit = step.unit,
+          factor = step.factor,
+          granularity = step.granularity;
+      var amount = Math.abs(elapsed) / factor; // Apply granularity to the time amount
+      // (and fallback to the previous step
+      //  if the first level of granularity
+      //  isn't met by this amount)
+
+      if (granularity) {
+        // Recalculate the elapsed time amount based on granularity
+        amount = Math.round(amount / granularity) * granularity;
+      } // `Intl.RelativeTimeFormat` doesn't operate in "now" units.
+
+
+      if (unit === 'now') {
+        return getNowMessage(localeData, -1 * Math.sign(elapsed));
+      }
+
+      switch (flavour) {
+        case 'long':
+        case 'short':
+        case 'narrow':
+          // Format `value` using `Intl.RelativeTimeFormat`.
+          return this.getFormatter(flavour).format(-1 * Math.sign(elapsed) * Math.round(amount), unit);
+
+        default:
+          // Format `value`.
+          // (mimicks `Intl.RelativeTimeFormat` with the addition of extra styles)
+          return this.formatValue(-1 * Math.sign(elapsed) * Math.round(amount), unit, localeData);
+      }
+    }
+    /**
+     * Mimicks what `Intl.RelativeTimeFormat` does for additional locale styles.
+     * @param  {number} value
+     * @param  {string} unit
+     * @param  {object} localeData — Relative time messages for the flavor.
+     * @return {string}
+     */
+
+  }, {
+    key: "formatValue",
+    value: function formatValue(value, unit, localeData) {
+      return this.getRule(value, unit, localeData).replace('{0}', this.formatNumber(Math.abs(value)));
+    }
+    /**
+     * Returns formatting rule for `value` in `units` (either in past or in future).
+     * @param {number} value - Time interval value.
+     * @param {string} unit - Time interval measurement unit.
+     * @param  {object} localeData — Relative time messages for the flavor.
+     * @return {string}
+     * @example
+     * // Returns "{0} days ago"
+     * getRule(-2, "day")
+     */
+
+  }, {
+    key: "getRule",
+    value: function getRule(value, unit, localeData) {
+      var unitRules = localeData[unit]; // Bundle size optimization technique.
+
+      if (typeof unitRules === 'string') {
+        return unitRules;
+      } // Choose either "past" or "future" based on time `value` sign.
+      // If "past" is same as "future" then they're stored as "other".
+      // If there's only "other" then it's being collapsed.
+
+
+      var quantifierRules = unitRules[value <= 0 ? 'past' : 'future'] || unitRules; // Bundle size optimization technique.
+
+      if (typeof quantifierRules === 'string') {
+        return quantifierRules;
+      } // Quantify `value`.
+
+
+      var quantify = Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_5__["getLocaleData"])(this.locale).quantify;
+
+      var quantifier = quantify && quantify(Math.abs(value)); // There seems to be no such locale in CLDR
+      // for which `quantify` is missing
+      // and still `past` and `future` messages
+      // contain something other than "other".
+
+      /* istanbul ignore next */
+
+      quantifier = quantifier || 'other'; // "other" rule is supposed to always be present.
+      // If only "other" rule is present then "rules" is not an object and is a string.
+
+      return quantifierRules[quantifier] || quantifierRules.other;
+    }
+    /**
+     * Formats a number into a string.
+     * Uses `Intl.NumberFormat` when available.
+     * @param  {number} number
+     * @return {string}
+     */
+
+  }, {
+    key: "formatNumber",
+    value: function formatNumber(number) {
+      return this.numberFormat ? this.numberFormat.format(number) : String(number);
+    }
+    /**
+     * Returns an `Intl.RelativeTimeFormat` for a given `flavor`.
+     * @param {string} flavor
+     * @return {object} `Intl.RelativeTimeFormat` instance
+     */
+
+  }, {
+    key: "getFormatter",
+    value: function getFormatter(flavor) {
+      // `Intl.RelativeTimeFormat` instance creation is assumed a
+      // lengthy operation so the instances are cached and reused.
+      return this.relativeTimeFormatCache.get(this.locale, flavor) || this.relativeTimeFormatCache.put(this.locale, flavor, new relative_time_format__WEBPACK_IMPORTED_MODULE_0__["default"](this.locale, {
+        style: flavor
+      }));
+    }
+    /**
+     * Gets locale messages for this formatting flavour
+     *
+     * @param {(string|string[])} flavour - Relative date/time formatting flavour.
+     *                                      If it's an array then all flavours are tried in order.
+     *
+     * @returns {Object} Returns an object of shape { flavour, localeData }
+     */
+
+  }, {
+    key: "getLocaleData",
+    value: function getLocaleData() {
+      var flavour = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+      // Get relative time formatting rules for this locale
+      var localeData = Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_5__["getLocaleData"])(this.locale); // Convert `flavour` to an array.
+
+
+      if (typeof flavour === 'string') {
+        flavour = [flavour];
+      } // "long" flavour is the default one.
+      // (it's always present)
+
+
+      flavour = flavour.concat('long'); // Find a suitable flavour.
+
+      for (var _iterator = flavour, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref;
+
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
+        } else {
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
+        }
+
+        var _ = _ref;
+
+        if (localeData[_]) {
+          return {
+            flavour: _,
+            localeData: localeData[_]
+          };
+        }
+      } // Can't happen - "long" flavour is always present.
+      // throw new Error(`None of the flavours - ${flavour.join(', ')} - was found for locale "${this.locale}".`)
+
+    }
+  }]);
+
+  return JavascriptTimeAgo;
+}();
+/**
+ * Gets default locale.
+ * @return  {string} locale
+ */
+
+
+
+JavascriptTimeAgo.getDefaultLocale = relative_time_format__WEBPACK_IMPORTED_MODULE_0__["default"].getDefaultLocale;
+/**
+ * Sets default locale.
+ * @param  {string} locale
+ */
+
+JavascriptTimeAgo.setDefaultLocale = relative_time_format__WEBPACK_IMPORTED_MODULE_0__["default"].setDefaultLocale;
+/**
+ * Adds locale data for a specific locale.
+ * @param {Object} localeData
+ */
+
+JavascriptTimeAgo.addLocale = function (localeData) {
+  Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_5__["addLocaleData"])(localeData);
+  relative_time_format__WEBPACK_IMPORTED_MODULE_0__["default"].addLocale(localeData);
+};
+/**
+ * (legacy alias)
+ * Adds locale data for a specific locale.
+ * @param {Object} localeData
+ * @deprecated
+ */
+
+
+JavascriptTimeAgo.locale = JavascriptTimeAgo.addLocale; // Normalizes `.format()` `time` argument.
+
+function getDateAndTimeBeingFormatted(input) {
+  if (input.constructor === Date || isMockedDate(input)) {
+    return {
+      date: input,
+      time: input.getTime()
+    };
+  }
+
+  if (typeof input === 'number') {
+    return {
+      time: input // `date` is not required for formatting
+      // relative times unless "twitter" preset is used.
+      // date : new Date(input)
+
+    };
+  } // For some weird reason istanbul doesn't see this `throw` covered.
+
+  /* istanbul ignore next */
+
+
+  throw new Error("Unsupported relative time formatter input: ".concat(_typeof(input), ", ").concat(input));
+} // During testing via some testing libraries `Date`s aren't actually `Date`s.
+// https://github.com/catamphetamine/javascript-time-ago/issues/22
+
+
+function isMockedDate(object) {
+  return _typeof(object) === 'object' && typeof object.getTime === 'function';
+} // Get available time interval measurement units.
+
+
+function getTimeIntervalMeasurementUnits(localeData, restrictedSetOfUnits) {
+  // All available time interval measurement units.
+  var units = Object.keys(localeData); // If only a specific set of available
+  // time measurement units can be used.
+
+  if (restrictedSetOfUnits) {
+    // Reduce available time interval measurement units
+    // based on user's preferences.
+    units = restrictedSetOfUnits.filter(function (_) {
+      return units.indexOf(_) >= 0;
+    });
+  } // Stock `Intl.RelativeTimeFormat` locale data doesn't have "now" units.
+  // So either "now" is present in extended locale data
+  // or it's taken from ".second.current".
+
+
+  if ((!restrictedSetOfUnits || restrictedSetOfUnits.indexOf('now') >= 0) && units.indexOf('now') < 0) {
+    if (localeData.second.current) {
+      units.unshift('now');
+    }
+  }
+
+  return units;
+}
+
+function getNowMessage(localeData, value) {
+  // Specific "now" message form extended locale data (if present).
+  if (localeData.now) {
+    // Bundle size optimization technique.
+    if (typeof localeData.now === 'string') {
+      return localeData.now;
+    } // Not handling `value === 0` as `localeData.now.current` here
+    // because it wouldn't make sense: "now" is a moment,
+    // so one can't possibly differentiate between a
+    // "previous" moment, a "current" moment and a "next moment".
+    // It can only be differentiated between "past" and "future".
+
+
+    if (value <= 0) {
+      return localeData.now.past;
+    } else {
+      return localeData.now.future;
+    }
+  } // Use ".second.current" as "now" message.
+
+
+  return localeData.second.current; // If this function was called then
+  // it means that either "now" unit messages are
+  // available or ".second.current" message is present.
+}
+//# sourceMappingURL=JavascriptTimeAgo.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/LocaleDataStore.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/LocaleDataStore.js ***!
+  \*********************************************************************/
+/*! exports provided: getLocaleData, addLocaleData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLocaleData", function() { return getLocaleData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addLocaleData", function() { return addLocaleData; });
+// Fallback locale.
+// (when not a single one of the supplied "preferred" locales is available)
+var defaultLocale = 'en'; // For all locales added
+// their relative time formatter messages will be stored here.
+
+var localesData = {};
+function getLocaleData(locale) {
+  return localesData[locale];
+}
+function addLocaleData(localeData) {
+  if (!localeData) {
+    throw new Error('[javascript-time-ago] No locale data passed.');
+  } // This locale data is stored in a global variable
+  // and later used when calling `.format(time)`.
+
+
+  localesData[localeData.locale] = localeData;
+}
+//# sourceMappingURL=LocaleDataStore.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/cache.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/cache.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Cache; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * A basic in-memory cache.
+ *
+ * import Cache from 'javascript-time-ago/Cache'
+ * const cache = new Cache()
+ * const object = cache.get('key1', 'key2', ...) || cache.put('key1', 'key2', ..., createObject())
+ */
+var Cache =
+/*#__PURE__*/
+function () {
+  function Cache() {
+    _classCallCheck(this, Cache);
+
+    _defineProperty(this, "cache", {});
+  }
+
+  _createClass(Cache, [{
+    key: "get",
+    value: function get() {
+      var cache = this.cache;
+
+      for (var _len = arguments.length, keys = new Array(_len), _key = 0; _key < _len; _key++) {
+        keys[_key] = arguments[_key];
+      }
+
+      for (var _i = 0; _i < keys.length; _i++) {
+        var key = keys[_i];
+
+        if (_typeof(cache) !== 'object') {
+          return;
+        }
+
+        cache = cache[key];
+      }
+
+      return cache;
+    }
+  }, {
+    key: "put",
+    value: function put() {
+      for (var _len2 = arguments.length, keys = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        keys[_key2] = arguments[_key2];
+      }
+
+      var value = keys.pop();
+      var lastKey = keys.pop();
+      var cache = this.cache;
+
+      for (var _i2 = 0; _i2 < keys.length; _i2++) {
+        var key = keys[_i2];
+
+        if (_typeof(cache[key]) !== 'object') {
+          cache[key] = {};
+        }
+
+        cache = cache[key];
+      }
+
+      return cache[lastKey] = value;
+    }
+  }]);
+
+  return Cache;
+}();
+
+
+//# sourceMappingURL=cache.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/gradation/canonical.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/gradation/canonical.js ***!
+  \*************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helpers */ "./node_modules/javascript-time-ago/modules/gradation/helpers.js");
+ // just now
+// 1 second ago
+// 2 seconds ago
+// …
+// 59 seconds ago
+// 1 minute ago
+// 2 minutes ago
+// …
+// 59 minutes ago
+// 1 hour ago
+// 2 hours ago
+// …
+// 24 hours ago
+// 1 day ago
+// 2 days ago
+// …
+// 7 days ago
+// 1 week ago
+// 2 weeks ago
+// …
+// 3 weeks ago
+// 1 month ago
+// 2 months ago
+// …
+// 11 months ago
+// 1 year ago
+// 2 years ago
+// …
+
+/* harmony default export */ __webpack_exports__["default"] = ([{
+  factor: 1,
+  unit: 'now'
+}, {
+  threshold: 0.5,
+  factor: 1,
+  unit: 'second'
+}, {
+  threshold: 59.5,
+  factor: 60,
+  unit: 'minute'
+}, {
+  threshold: 59.5 * 60,
+  factor: 60 * 60,
+  unit: 'hour'
+}, {
+  threshold: 23.5 * 60 * 60,
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  unit: 'day'
+}, {
+  threshold: 6.5 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  factor: 7 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  unit: 'week'
+}, {
+  threshold: 3.5 * 7 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["month"],
+  unit: 'month'
+}, {
+  threshold: 11.5 * _helpers__WEBPACK_IMPORTED_MODULE_0__["month"],
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["year"],
+  unit: 'year'
+}]);
+//# sourceMappingURL=canonical.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/gradation/convenient.js":
+/*!**************************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/gradation/convenient.js ***!
+  \**************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./helpers */ "./node_modules/javascript-time-ago/modules/gradation/helpers.js");
+ // just now
+// 1 minute ago
+// 2 minutes ago
+// 5 minutes ago
+// 10 minutes ago
+// 15 minutes ago
+// 20 minutes ago
+// an hour ago
+// 2 hours ago
+// …
+// 20 hours ago
+// a day ago
+// 2 days ago
+// 5 days ago
+// a week ago
+// 2 weeks ago
+// 3 weeks ago
+// a month ago
+// 2 months ago
+// 4 months ago
+// a year ago
+// 2 years ago
+// …
+
+/* harmony default export */ __webpack_exports__["default"] = ([{
+  factor: 1,
+  unit: 'now'
+}, {
+  threshold: 1,
+  threshold_for_now: 45,
+  factor: 1,
+  unit: 'second'
+}, {
+  threshold: 45,
+  factor: 60,
+  unit: 'minute'
+}, {
+  threshold: 2.5 * 60,
+  factor: 60,
+  granularity: 5,
+  unit: 'minute'
+}, {
+  threshold: 22.5 * 60,
+  factor: 30 * 60,
+  unit: 'half-hour'
+}, {
+  threshold: 42.5 * 60,
+  threshold_for_minute: 52.5 * 60,
+  factor: 60 * 60,
+  unit: 'hour'
+}, {
+  threshold: 20.5 / 24 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  unit: 'day'
+}, {
+  threshold: 5.5 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  factor: 7 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  unit: 'week'
+}, {
+  threshold: 3.5 * 7 * _helpers__WEBPACK_IMPORTED_MODULE_0__["day"],
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["month"],
+  unit: 'month'
+}, {
+  threshold: 10.5 * _helpers__WEBPACK_IMPORTED_MODULE_0__["month"],
+  factor: _helpers__WEBPACK_IMPORTED_MODULE_0__["year"],
+  unit: 'year'
+}]);
+//# sourceMappingURL=convenient.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/gradation/helpers.js":
+/*!***********************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/gradation/helpers.js ***!
+  \***********************************************************************/
+/*! exports provided: minute, hour, day, month, year, getStep, getDate */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "minute", function() { return minute; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hour", function() { return hour; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "day", function() { return day; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "month", function() { return month; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "year", function() { return year; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getStep", function() { return getStep; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDate", function() { return getDate; });
+var minute = 60; // in seconds
+
+var hour = 60 * minute; // in seconds
+
+var day = 24 * hour; // in seconds
+// https://www.quora.com/What-is-the-average-number-of-days-in-a-month
+
+var month = 30.44 * day; // in seconds
+// "400 years have 146097 days (taking into account leap year rules)"
+
+var year = 146097 / 400 * day; // in seconds
+
+/**
+ * Returns a step of gradation corresponding to the unit.
+ * @param  {Object[]} gradation
+ * @param  {string} unit
+ * @return {?Object}
+ */
+
+function getStep(gradation, unit) {
+  for (var _iterator = gradation, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+    var _ref;
+
+    if (_isArray) {
+      if (_i >= _iterator.length) break;
+      _ref = _iterator[_i++];
+    } else {
+      _i = _iterator.next();
+      if (_i.done) break;
+      _ref = _i.value;
+    }
+
+    var step = _ref;
+
+    if (step.unit === unit) {
+      return step;
+    }
+  }
+}
+/**
+ * Converts value to a `Date`
+ * @param {(number|Date)} value
+ * @return {Date}
+ */
+
+function getDate(value) {
+  return value instanceof Date ? value : new Date(value);
+}
+//# sourceMappingURL=helpers.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/gradation/index.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/gradation/index.js ***!
+  \*********************************************************************/
+/*! exports provided: canonical, convenient, minute, hour, day, month, year, getStep, getDate */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _canonical__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./canonical */ "./node_modules/javascript-time-ago/modules/gradation/canonical.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "canonical", function() { return _canonical__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _convenient__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./convenient */ "./node_modules/javascript-time-ago/modules/gradation/convenient.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "convenient", function() { return _convenient__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+/* harmony import */ var _helpers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./helpers */ "./node_modules/javascript-time-ago/modules/gradation/helpers.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "minute", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["minute"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "hour", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["hour"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "day", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["day"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "month", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["month"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "year", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["year"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getStep", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["getStep"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getDate", function() { return _helpers__WEBPACK_IMPORTED_MODULE_2__["getDate"]; });
+
+// A gradation is a mapping from a time interval (in seconds)
+// to the most appropriate time interval measurement unit
+// for describing it, along with the amount of such units.
+//
+// E.g. for "canonical" gradation:
+//
+// 0 -> 1 'now'
+// 0.5 -> 1 'second'
+// 60 -> 1 'minute'
+// 91 -> 2 'minute's
+// ...
+//
+// Each gradation unit can have:
+//
+// * unit - (required) The name of the time interval measurement unit.
+//
+// * factor - (required) The amount of seconds will be divided by this number for this unit.
+//
+// * granularity - A step for the unit's resulting "amount" value.
+//
+// * threshold - Min value (in seconds) for this unit. Is required for non-first unit.
+//
+// * threshold_for_[unit] - A specific threshold required for moving from `[unit]` to this unit.
+//                          E.g. if "now" unit is present in time units gradation
+//                          then `threshold_for_now` can be set to `45` seconds.
+//                          Otherwise, if "now" unit is omitted from time units gradation,
+//                          then `elapsed(0)` will output "0 seconds" because there's no `threshold`.
+//
+// A user can supply his own gradation.
+//
+// Don't name a gradation "default"
+// because that would conflict with the
+// CommonJS "interoperability" export layer.
+//
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/grade.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/grade.js ***!
+  \***********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return grade; });
+/* harmony import */ var _gradation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gradation */ "./node_modules/javascript-time-ago/modules/gradation/index.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+
+/**
+ * Takes seconds `elapsed` and measures them against
+ * `gradation` to return the suitable `gradation` step.
+ *
+ * @param {number} elapsed - Time interval (in seconds). Is < 0 for past dates and > 0 for future dates.
+ *
+ * @param {string[]} units - A list of allowed time units
+ *                           (e.g. ['second', 'minute', 'hour', …])
+ *
+ * @param {Object} [gradation] - Time scale gradation steps.
+ *
+ *                               E.g.:
+ *                               [
+ *                                 { unit: 'second', factor: 1 },
+ *                                 { unit: 'minute', factor: 60, threshold: 60 },
+ *                                 { format(), threshold: 24 * 60 * 60 },
+ *                                 …
+ *                               ]
+ *
+ * @return {?Object} `gradation` step.
+ */
+
+function grade(elapsed, now, units) {
+  var gradation = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _gradation__WEBPACK_IMPORTED_MODULE_0__["convenient"];
+  // Leave only allowed time measurement units.
+  // E.g. omit "quarter" unit.
+  gradation = getAllowedSteps(gradation, units); // If no steps of gradation fit the conditions
+  // then return nothing.
+
+  if (gradation.length === 0) {
+    return;
+  } // Find the most appropriate gradation step
+
+
+  var i = findGradationStep(elapsed, now, gradation);
+  var step = gradation[i]; // If time elapsed is too small and even
+  // the first gradation step doesn't suit it
+  // then return nothing.
+
+  if (i === -1) {
+    return;
+  } // Apply granularity to the time amount
+  // (and fall back to the previous step
+  //  if the first level of granularity
+  //  isn't met by this amount)
+
+
+  if (step.granularity) {
+    // Recalculate the elapsed time amount based on granularity
+    var amount = Math.round(Math.abs(elapsed) / step.factor / step.granularity) * step.granularity; // If the granularity for this step
+    // is too high, then fallback
+    // to the previous step of gradation.
+    // (if there is any previous step of gradation)
+
+    if (amount === 0 && i > 0) {
+      return gradation[i - 1];
+    }
+  }
+
+  return step;
+}
+/**
+ * Gets threshold for moving from `fromStep` to `next_step`.
+ * @param  {Object} fromStep - From step.
+ * @param  {Object} next_step - To step.
+ * @param  {number} now - The current timestamp.
+ * @param  {boolean} future - Is `true` for future dates ("in 5 minutes").
+ * @return {number}
+ * @throws Will throw if no threshold is found.
+ */
+
+function getThreshold(fromStep, toStep, now, future) {
+  var threshold; // Allows custom thresholds when moving
+  // from a specific step to a specific step.
+
+  if (fromStep && (fromStep.id || fromStep.unit)) {
+    threshold = toStep["threshold_for_".concat(fromStep.id || fromStep.unit)];
+  } // If no custom threshold is set for this transition
+  // then use the usual threshold for the next step.
+
+
+  if (threshold === undefined) {
+    threshold = toStep.threshold;
+  } // Convert threshold to a number.
+
+
+  if (typeof threshold === 'function') {
+    threshold = threshold(now, future);
+  } // Throw if no threshold is found.
+
+
+  if (fromStep && typeof threshold !== 'number') {
+    // Babel transforms `typeof` into some "branches"
+    // so istanbul will show this as "branch not covered".
+
+    /* istanbul ignore next */
+    var type = _typeof(threshold);
+
+    throw new Error("Each step of a gradation must have a threshold defined except for the first one. Got \"".concat(threshold, "\", ").concat(type, ". Step: ").concat(JSON.stringify(toStep)));
+  }
+
+  return threshold;
+}
+/**
+ * @param  {number} elapsed - Time elapsed (in seconds).
+ * @param  {number} now - Current timestamp.
+ * @param  {Object} gradation - Gradation.
+ * @param  {number} i - Gradation step currently being tested.
+ * @return {number} Gradation step index.
+ */
+
+
+function findGradationStep(elapsed, now, gradation) {
+  var i = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+
+  // If the threshold for moving from previous step
+  // to this step is too high then return the previous step.
+  if (Math.abs(elapsed) < getThreshold(gradation[i - 1], gradation[i], now, elapsed < 0)) {
+    return i - 1;
+  } // If it's the last step of gradation then return it.
+
+
+  if (i === gradation.length - 1) {
+    return i;
+  } // Move to the next step.
+
+
+  return findGradationStep(elapsed, now, gradation, i + 1);
+}
+/**
+ * Leaves only allowed gradation steps.
+ * @param  {Object[]} gradation
+ * @param  {string[]} units - Allowed time units.
+ * @return {Object[]}
+ */
+
+
+function getAllowedSteps(gradation, units) {
+  return gradation.filter(function (_ref) {
+    var unit = _ref.unit;
+
+    // If this step has a `unit` defined
+    // then this `unit` must be in the list of `units` allowed.
+    if (unit) {
+      return units.indexOf(unit) >= 0;
+    } // A gradation step is not required to specify a `unit`.
+    // E.g. for Twitter gradation it specifies `format()` instead.
+
+
+    return true;
+  });
+}
+//# sourceMappingURL=grade.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/locale.js":
+/*!************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/locale.js ***!
+  \************************************************************/
+/*! exports provided: default, intlDateTimeFormatSupportedLocale, intlDateTimeFormatSupported */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return chooseLocale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "intlDateTimeFormatSupportedLocale", function() { return intlDateTimeFormatSupportedLocale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "intlDateTimeFormatSupported", function() { return intlDateTimeFormatSupported; });
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+// Chooses the most appropriate locale
+// (one of the registered ones)
+// based on the list of preferred `locales` supplied by the user.
+//
+// @param {string[]} locales - the list of preferable locales (in [IETF format](https://en.wikipedia.org/wiki/IETF_language_tag)).
+// @param {Function} isLocaleDataAvailable - tests if a locale is available.
+//
+// @returns {string} The most suitable locale
+//
+// @example
+// // Returns 'en'
+// chooseLocale(['en-US'], undefined, (locale) => locale === 'ru' || locale === 'en')
+//
+function chooseLocale(locales, isLocaleDataAvailable) {
+  // This is not an intelligent algorithm,
+  // but it will do for this library's case.
+  // `sr-Cyrl-BA` -> `sr-Cyrl` -> `sr`.
+  for (var _iterator = locales, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+    var _ref;
+
+    if (_isArray) {
+      if (_i >= _iterator.length) break;
+      _ref = _iterator[_i++];
+    } else {
+      _i = _iterator.next();
+      if (_i.done) break;
+      _ref = _i.value;
+    }
+
+    var locale = _ref;
+
+    if (isLocaleDataAvailable(locale)) {
+      return locale;
+    }
+
+    var parts = locale.split('-');
+
+    while (parts.length > 1) {
+      parts.pop();
+      locale = parts.join('-');
+
+      if (isLocaleDataAvailable(locale)) {
+        return locale;
+      }
+    }
+  }
+
+  throw new Error("No locale data has been registered for any of the locales: ".concat(locales.join(', ')));
+}
+/**
+ * Whether can use `Intl.DateTimeFormat` for these `locales`.
+ * Returns the first suitable one.
+ * @param  {(string|string[])} locales
+ * @return {?string} The first locale that can be used.
+ */
+
+function intlDateTimeFormatSupportedLocale(locales) {
+  /* istanbul ignore else */
+  if (intlDateTimeFormatSupported()) {
+    return Intl.DateTimeFormat.supportedLocalesOf(locales)[0];
+  }
+}
+/**
+ * Whether can use `Intl.DateTimeFormat`.
+ * @return {boolean}
+ */
+
+function intlDateTimeFormatSupported() {
+  // Babel transforms `typeof` into some "branches"
+  // so istanbul will show this as "branch not covered".
+
+  /* istanbul ignore next */
+  var isIntlAvailable = (typeof Intl === "undefined" ? "undefined" : _typeof(Intl)) === 'object';
+  return isIntlAvailable && typeof Intl.DateTimeFormat === 'function';
+}
+//# sourceMappingURL=locale.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/style/default.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/style/default.js ***!
+  \*******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _gradation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gradation */ "./node_modules/javascript-time-ago/modules/gradation/index.js");
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  gradation: _gradation__WEBPACK_IMPORTED_MODULE_0__["convenient"],
+  flavour: ['long-convenient', 'long'],
+  units: ['now', 'minute', 'hour', 'day', 'week', 'month', 'year']
+});
+//# sourceMappingURL=default.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/style/index.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/style/index.js ***!
+  \*****************************************************************/
+/*! exports provided: timeStyle, twitterStyle, defaultStyle */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _time__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./time */ "./node_modules/javascript-time-ago/modules/style/time.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "timeStyle", function() { return _time__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var _twitter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./twitter */ "./node_modules/javascript-time-ago/modules/style/twitter.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "twitterStyle", function() { return _twitter__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+/* harmony import */ var _default__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./default */ "./node_modules/javascript-time-ago/modules/style/default.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "defaultStyle", function() { return _default__WEBPACK_IMPORTED_MODULE_2__["default"]; });
+
+// A preset (style) is an object having shape
+// `{ units, gradation, flavour, custom({ elapsed, time, date, now, locale }) }`.
+//
+// `date` parameter of `custom()` is not guaranteed to be set (can be inferred from `time`).
+//
+
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/style/time.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/style/time.js ***!
+  \****************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _gradation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gradation */ "./node_modules/javascript-time-ago/modules/gradation/index.js");
+ // Similar to the default style but with "ago" omitted.
+//
+// just now
+// 5 minutes
+// 10 minutes
+// 15 minutes
+// 20 minutes
+// an hour
+// 2 hours
+// …
+// 20 hours
+// 1 day
+// 2 days
+// a week
+// 2 weeks
+// 3 weeks
+// a month
+// 2 months
+// 3 months
+// 4 months
+// a year
+// 2 years
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  gradation: _gradation__WEBPACK_IMPORTED_MODULE_0__["convenient"],
+  flavour: 'long-time',
+  units: ['now', 'minute', 'hour', 'day', 'week', 'month', 'year']
+});
+//# sourceMappingURL=time.js.map
+
+/***/ }),
+
+/***/ "./node_modules/javascript-time-ago/modules/style/twitter.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/javascript-time-ago/modules/style/twitter.js ***!
+  \*******************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _gradation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../gradation */ "./node_modules/javascript-time-ago/modules/gradation/index.js");
+/* harmony import */ var _locale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../locale */ "./node_modules/javascript-time-ago/modules/locale.js");
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+ // A cache for `Intl.DateTimeFormat` twitter formatters
+// for various locales (is a global variable).
+
+var formatters = {}; // Twitter style relative time formatting.
+// ("1m", "2h", "Mar 3", "Apr 4, 2012").
+// Seconds, minutes and hours are shown relatively,
+// and other intervals can be shown using full date format.
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  // Twitter gradation is derived from "canonical" gradation
+  // adjusting its "minute" `threshold` to be 45.
+  gradation: [// Minutes
+  _objectSpread({}, Object(_gradation__WEBPACK_IMPORTED_MODULE_0__["getStep"])(_gradation__WEBPACK_IMPORTED_MODULE_0__["canonical"], 'minute'), {
+    // Starts showing `1m` after `59s`.
+    threshold: 59.5
+  }), // Hours
+  _objectSpread({}, Object(_gradation__WEBPACK_IMPORTED_MODULE_0__["getStep"])(_gradation__WEBPACK_IMPORTED_MODULE_0__["canonical"], 'hour'), {
+    // After `59m` it will show `1h`.
+    threshold: 59.5 * 60
+  }), // If `date` and `now` happened the same year,
+  // then only output month and day.
+  {
+    threshold: _gradation__WEBPACK_IMPORTED_MODULE_0__["day"] - 0.5 * _gradation__WEBPACK_IMPORTED_MODULE_0__["hour"],
+    format: function format(value, locale) {
+      // Whether can use `Intl.DateTimeFormat`.
+      // If `Intl` is not available,
+      // or the locale is not supported,
+      // then don't override the default labels.
+
+      /* istanbul ignore if */
+      if (!Object(_locale__WEBPACK_IMPORTED_MODULE_1__["intlDateTimeFormatSupported"])()) {
+        return;
+      }
+      /* istanbul ignore else */
+
+
+      if (!formatters[locale]) {
+        formatters[locale] = {};
+      }
+      /* istanbul ignore else */
+
+
+      if (!formatters[locale].this_year) {
+        // "Apr 11" (MMMd)
+        formatters[locale].this_year = new Intl.DateTimeFormat(locale, {
+          month: 'short',
+          day: 'numeric'
+        });
+      } // Output month and day.
+
+
+      return formatters[locale].this_year.format(Object(_gradation__WEBPACK_IMPORTED_MODULE_0__["getDate"])(value));
+    }
+  }, // If `date` and `now` happened in defferent years,
+  // then output day, month and year.
+  {
+    threshold: function threshold(now, future) {
+      if (future) {
+        // Jan 1st 00:00 of the next year.
+        var nextYear = new Date(new Date(now).getFullYear() + 1, 0);
+        return (nextYear.getTime() - now) / 1000;
+      } else {
+        // Jan 1st of the current year.
+        var thisYear = new Date(new Date(now).getFullYear(), 0);
+        return (now - thisYear.getTime()) / 1000;
+      }
+    },
+    format: function format(value, locale) {
+      // Whether can use `Intl.DateTimeFormat`.
+      // If `Intl` is not available,
+      // or the locale is not supported,
+      // then don't override the default labels.
+
+      /* istanbul ignore if */
+      if (!Object(_locale__WEBPACK_IMPORTED_MODULE_1__["intlDateTimeFormatSupported"])()) {
+        return;
+      }
+      /* istanbul ignore if */
+
+
+      if (!formatters[locale]) {
+        formatters[locale] = {};
+      }
+      /* istanbul ignore else */
+
+
+      if (!formatters[locale].other) {
+        // "Apr 11, 2017" (yMMMd)
+        formatters[locale].other = new Intl.DateTimeFormat(locale, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } // Output day, month and year.
+
+
+      return formatters[locale].other.format(Object(_gradation__WEBPACK_IMPORTED_MODULE_0__["getDate"])(value));
+    }
+  }],
+  flavour: ['tiny', 'short-time', 'narrow', 'short']
+});
+//# sourceMappingURL=twitter.js.map
 
 /***/ }),
 
@@ -20511,6 +22090,580 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/relative-time-format/index.js":
+/*!****************************************************!*\
+  !*** ./node_modules/relative-time-format/index.js ***!
+  \****************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _modules_RelativeTimeFormat__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/RelativeTimeFormat */ "./node_modules/relative-time-format/modules/RelativeTimeFormat.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _modules_RelativeTimeFormat__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/locale/en/index.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/relative-time-format/locale/en/index.js ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = {
+	locale: 'en',
+	long: __webpack_require__(/*! ./long.json */ "./node_modules/relative-time-format/locale/en/long.json"),
+	short: __webpack_require__(/*! ./short.json */ "./node_modules/relative-time-format/locale/en/short.json"),
+	narrow: __webpack_require__(/*! ./narrow.json */ "./node_modules/relative-time-format/locale/en/narrow.json"),
+	quantify: __webpack_require__(/*! ./quantify */ "./node_modules/relative-time-format/locale/en/quantify.js")
+}
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/locale/en/long.json":
+/*!***************************************************************!*\
+  !*** ./node_modules/relative-time-format/locale/en/long.json ***!
+  \***************************************************************/
+/*! exports provided: year, quarter, month, week, day, hour, minute, second, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"previous\":\"last year\",\"current\":\"this year\",\"next\":\"next year\",\"past\":{\"one\":\"{0} year ago\",\"other\":\"{0} years ago\"},\"future\":{\"one\":\"in {0} year\",\"other\":\"in {0} years\"}},\"quarter\":{\"previous\":\"last quarter\",\"current\":\"this quarter\",\"next\":\"next quarter\",\"past\":{\"one\":\"{0} quarter ago\",\"other\":\"{0} quarters ago\"},\"future\":{\"one\":\"in {0} quarter\",\"other\":\"in {0} quarters\"}},\"month\":{\"previous\":\"last month\",\"current\":\"this month\",\"next\":\"next month\",\"past\":{\"one\":\"{0} month ago\",\"other\":\"{0} months ago\"},\"future\":{\"one\":\"in {0} month\",\"other\":\"in {0} months\"}},\"week\":{\"previous\":\"last week\",\"current\":\"this week\",\"next\":\"next week\",\"past\":{\"one\":\"{0} week ago\",\"other\":\"{0} weeks ago\"},\"future\":{\"one\":\"in {0} week\",\"other\":\"in {0} weeks\"}},\"day\":{\"previous\":\"yesterday\",\"current\":\"today\",\"next\":\"tomorrow\",\"past\":{\"one\":\"{0} day ago\",\"other\":\"{0} days ago\"},\"future\":{\"one\":\"in {0} day\",\"other\":\"in {0} days\"}},\"hour\":{\"current\":\"this hour\",\"past\":{\"one\":\"{0} hour ago\",\"other\":\"{0} hours ago\"},\"future\":{\"one\":\"in {0} hour\",\"other\":\"in {0} hours\"}},\"minute\":{\"current\":\"this minute\",\"past\":{\"one\":\"{0} minute ago\",\"other\":\"{0} minutes ago\"},\"future\":{\"one\":\"in {0} minute\",\"other\":\"in {0} minutes\"}},\"second\":{\"current\":\"now\",\"past\":{\"one\":\"{0} second ago\",\"other\":\"{0} seconds ago\"},\"future\":{\"one\":\"in {0} second\",\"other\":\"in {0} seconds\"}}}");
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/locale/en/narrow.json":
+/*!*****************************************************************!*\
+  !*** ./node_modules/relative-time-format/locale/en/narrow.json ***!
+  \*****************************************************************/
+/*! exports provided: year, quarter, month, week, day, hour, minute, second, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"previous\":\"last yr.\",\"current\":\"this yr.\",\"next\":\"next yr.\",\"past\":\"{0} yr. ago\",\"future\":\"in {0} yr.\"},\"quarter\":{\"previous\":\"last qtr.\",\"current\":\"this qtr.\",\"next\":\"next qtr.\",\"past\":{\"one\":\"{0} qtr. ago\",\"other\":\"{0} qtrs. ago\"},\"future\":{\"one\":\"in {0} qtr.\",\"other\":\"in {0} qtrs.\"}},\"month\":{\"previous\":\"last mo.\",\"current\":\"this mo.\",\"next\":\"next mo.\",\"past\":\"{0} mo. ago\",\"future\":\"in {0} mo.\"},\"week\":{\"previous\":\"last wk.\",\"current\":\"this wk.\",\"next\":\"next wk.\",\"past\":\"{0} wk. ago\",\"future\":\"in {0} wk.\"},\"day\":{\"previous\":\"yesterday\",\"current\":\"today\",\"next\":\"tomorrow\",\"past\":{\"one\":\"{0} day ago\",\"other\":\"{0} days ago\"},\"future\":{\"one\":\"in {0} day\",\"other\":\"in {0} days\"}},\"hour\":{\"current\":\"this hour\",\"past\":\"{0} hr. ago\",\"future\":\"in {0} hr.\"},\"minute\":{\"current\":\"this minute\",\"past\":\"{0} min. ago\",\"future\":\"in {0} min.\"},\"second\":{\"current\":\"now\",\"past\":\"{0} sec. ago\",\"future\":\"in {0} sec.\"}}");
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/locale/en/quantify.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/relative-time-format/locale/en/quantify.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports=function(n){var r=!String(n).split(".")[1];return 1==n&&r?"one":"other"}
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/locale/en/short.json":
+/*!****************************************************************!*\
+  !*** ./node_modules/relative-time-format/locale/en/short.json ***!
+  \****************************************************************/
+/*! exports provided: year, quarter, month, week, day, hour, minute, second, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("{\"year\":{\"previous\":\"last yr.\",\"current\":\"this yr.\",\"next\":\"next yr.\",\"past\":\"{0} yr. ago\",\"future\":\"in {0} yr.\"},\"quarter\":{\"previous\":\"last qtr.\",\"current\":\"this qtr.\",\"next\":\"next qtr.\",\"past\":{\"one\":\"{0} qtr. ago\",\"other\":\"{0} qtrs. ago\"},\"future\":{\"one\":\"in {0} qtr.\",\"other\":\"in {0} qtrs.\"}},\"month\":{\"previous\":\"last mo.\",\"current\":\"this mo.\",\"next\":\"next mo.\",\"past\":\"{0} mo. ago\",\"future\":\"in {0} mo.\"},\"week\":{\"previous\":\"last wk.\",\"current\":\"this wk.\",\"next\":\"next wk.\",\"past\":\"{0} wk. ago\",\"future\":\"in {0} wk.\"},\"day\":{\"previous\":\"yesterday\",\"current\":\"today\",\"next\":\"tomorrow\",\"past\":{\"one\":\"{0} day ago\",\"other\":\"{0} days ago\"},\"future\":{\"one\":\"in {0} day\",\"other\":\"in {0} days\"}},\"hour\":{\"current\":\"this hour\",\"past\":\"{0} hr. ago\",\"future\":\"in {0} hr.\"},\"minute\":{\"current\":\"this minute\",\"past\":\"{0} min. ago\",\"future\":\"in {0} min.\"},\"second\":{\"current\":\"now\",\"past\":\"{0} sec. ago\",\"future\":\"in {0} sec.\"}}");
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/modules/LocaleDataStore.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/relative-time-format/modules/LocaleDataStore.js ***!
+  \**********************************************************************/
+/*! exports provided: getDefaultLocale, setDefaultLocale, getLocaleData, addLocaleData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getDefaultLocale", function() { return getDefaultLocale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setDefaultLocale", function() { return setDefaultLocale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLocaleData", function() { return getLocaleData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addLocaleData", function() { return addLocaleData; });
+// Fallback locale.
+// (when not a single one of the supplied "preferred" locales is available)
+var defaultLocale = 'en'; // For all locales added
+// their relative time formatter messages will be stored here.
+
+var localesData = {};
+function getDefaultLocale() {
+  return defaultLocale;
+}
+function setDefaultLocale(locale) {
+  defaultLocale = locale;
+} // export function isLocaleDataAvailable(locale) {
+//  return localesData.hasOwnProperty(locale)
+// }
+
+function getLocaleData(locale) {
+  return localesData[locale];
+}
+function addLocaleData(localeData) {
+  if (!localeData) {
+    throw new Error('No locale data passed');
+  } // This locale data is stored in a global variable
+  // and later used when calling `.format(time)`.
+
+
+  localesData[localeData.locale] = localeData;
+}
+//# sourceMappingURL=LocaleDataStore.js.map
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/modules/RelativeTimeFormat.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/relative-time-format/modules/RelativeTimeFormat.js ***!
+  \*************************************************************************/
+/*! exports provided: UNITS, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UNITS", function() { return UNITS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return RelativeTimeFormat; });
+/* harmony import */ var _LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LocaleDataStore */ "./node_modules/relative-time-format/modules/LocaleDataStore.js");
+/* harmony import */ var _resolveLocale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./resolveLocale */ "./node_modules/relative-time-format/modules/resolveLocale.js");
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+ // Valid time units.
+
+var UNITS = ["second", "minute", "hour", "day", "week", "month", "quarter", "year"]; // Valid values for the `numeric` option.
+
+var NUMERIC_VALUES = ["auto", "always"]; // Valid values for the `style` option.
+
+var STYLE_VALUES = ["long", "short", "narrow"];
+/**
+ * Polyfill for `Intl.RelativeTimeFormat` proposal.
+ * https://github.com/tc39/proposal-intl-relative-time
+ * https://github.com/tc39/proposal-intl-relative-time/issues/55
+ */
+
+var RelativeTimeFormat =
+/*#__PURE__*/
+function () {
+  /**
+   * @param {(string|string[])} [locales] - Preferred locales (or locale).
+   * @param {Object} [options] - Formatting options.
+   * @param {string} [options.style="long"] - One of: "long", "short", "narrow".
+   * @param {string} [options.numeric="always"] - (Version >= 2) One of: "always", "auto".
+   * @param {string} [options.localeMatcher="lookup"] - One of: "lookup", "best fit". Currently only "lookup" is supported.
+   */
+  function RelativeTimeFormat() {
+    var locales = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    _classCallCheck(this, RelativeTimeFormat);
+
+    _defineProperty(this, "numeric", "always");
+
+    _defineProperty(this, "style", "long");
+
+    _defineProperty(this, "localeMatcher", "lookup");
+
+    var numeric = options.numeric,
+        style = options.style,
+        localeMatcher = options.localeMatcher; // Set `numeric` option.
+
+    if (numeric) {
+      if (NUMERIC_VALUES.indexOf(numeric) < 0) {
+        throw new RangeError("Invalid \"numeric\" option: ".concat(numeric));
+      }
+
+      this.numeric = numeric;
+    } // Set `style` option.
+
+
+    if (style) {
+      if (STYLE_VALUES.indexOf(style) < 0) {
+        throw new RangeError("Invalid \"style\" option: ".concat(style));
+      }
+
+      this.style = style;
+    } // Set `localeMatcher` option.
+
+
+    if (localeMatcher) {
+      this.localeMatcher = localeMatcher;
+    } // Set `locale`.
+    // Convert `locales` to an array.
+
+
+    if (typeof locales === 'string') {
+      locales = [locales];
+    } // Add default locale.
+
+
+    locales.push(Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getDefaultLocale"])()); // Choose the most appropriate locale.
+
+    this.locale = RelativeTimeFormat.supportedLocalesOf(locales, {
+      localeMatcher: this.localeMatcher
+    })[0];
+
+    if (!this.locale) {
+      throw new TypeError("No supported locale was found");
+    }
+
+    this.locale = Object(_resolveLocale__WEBPACK_IMPORTED_MODULE_1__["default"])(this.locale, {
+      localeMatcher: this.localeMatcher
+    }); // Use `Intl.NumberFormat` for formatting numbers (when available).
+
+    if (typeof Intl !== 'undefined' && Intl.NumberFormat) {
+      this.numberFormat = new Intl.NumberFormat(this.locale);
+    }
+  }
+  /**
+   * Formats time `value` in `units` (either in past or in future).
+   * @param {number} value - Time interval value.
+   * @param {string} unit - Time interval measurement unit.
+   * @return {string}
+   * @throws {RangeError} If unit is not one of "second", "minute", "hour", "day", "week", "month", "quarter".
+   * @example
+   * // Returns "2 days ago"
+   * rtf.format(-2, "day")
+   * // Returns "in 5 minutes"
+   * rtf.format(5, "minute")
+   */
+
+
+  _createClass(RelativeTimeFormat, [{
+    key: "format",
+    value: function format(value, unit) {
+      return this.getRule(value, unit).replace('{0}', this.formatNumber(Math.abs(value)));
+    }
+    /**
+     * Formats time `value` in `units` (either in past or in future).
+     * @param {number} value - Time interval value.
+     * @param {string} unit - Time interval measurement unit.
+     * @return {Object[]} The parts (`{ type, value }`).
+     * @throws {RangeError} If unit is not one of "second", "minute", "hour", "day", "week", "month", "quarter".
+     * @example
+     * // Version 1.
+     * // Returns [
+     * //   { type: "literal", value: "in " },
+     * //   { type: "day", value: "100" },
+     * //   { type: "literal", value: " days" }
+     * // ]
+     * rtf.formatToParts(100, "day")
+     * //
+     * // Version 2.
+     * // Returns [
+     * //   { type: "literal", value: "in " },
+     * //   { type: "integer", value: "100", unit: "day" },
+     * //   { type: "literal", value: " days" }
+     * // ]
+     * rtf.formatToParts(100, "day")
+     */
+
+  }, {
+    key: "formatToParts",
+    value: function formatToParts(value, unit) {
+      var rule = this.getRule(value, unit);
+      var valueIndex = rule.indexOf("{0}"); // "yesterday"/"today"/"tomorrow".
+
+      if (valueIndex < 0) {
+        return [{
+          type: "literal",
+          value: rule
+        }];
+      }
+
+      var parts = [];
+
+      if (valueIndex > 0) {
+        parts.push({
+          type: "literal",
+          value: rule.slice(0, valueIndex)
+        });
+      }
+
+      parts.push({
+        unit: unit,
+        type: "integer",
+        value: this.formatNumber(Math.abs(value))
+      });
+
+      if (valueIndex + "{0}".length < rule.length - 1) {
+        parts.push({
+          type: "literal",
+          value: rule.slice(valueIndex + "{0}".length)
+        });
+      }
+
+      return parts;
+    }
+    /**
+     * Returns formatting rule for `value` in `units` (either in past or in future).
+     * @param {number} value - Time interval value.
+     * @param {string} unit - Time interval measurement unit.
+     * @return {string}
+     * @throws {RangeError} If unit is not one of "second", "minute", "hour", "day", "week", "month", "quarter".
+     * @example
+     * // Returns "{0} days ago"
+     * getRule(-2, "day")
+     */
+
+  }, {
+    key: "getRule",
+    value: function getRule(value, unit) {
+      if (UNITS.indexOf(unit) < 0) {
+        throw new RangeError("Unknown time unit: ".concat(unit, "."));
+      } // Get locale-specific time interval formatting rules
+      // of a given `style` for the given value of measurement `unit`.
+      //
+      // E.g.:
+      //
+      // ```json
+      // {
+      //  "past": {
+      //    "one": "a second ago",
+      //    "other": "{0} seconds ago"
+      //  },
+      //  "future": {
+      //    "one": "in a second",
+      //    "other": "in {0} seconds"
+      //  }
+      // }
+      // ```
+      //
+
+
+      var unitRules = Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getLocaleData"])(this.locale)[this.style][unit]; // Special case for "yesterday"/"today"/"tomorrow".
+
+      if (this.numeric === "auto") {
+        // "yesterday", "the day before yesterday", etc.
+        if (value === -2 || value === -1) {
+          var message = unitRules["previous".concat(value === -1 ? '' : '-' + Math.abs(value))];
+
+          if (message) {
+            return message;
+          }
+        } // "tomorrow", "the day after tomorrow", etc.
+        else if (value === 1 || value === 2) {
+            var _message = unitRules["next".concat(value === 1 ? '' : '-' + Math.abs(value))];
+
+            if (_message) {
+              return _message;
+            }
+          } // "today"
+          else if (value === 0) {
+              if (unitRules.current) {
+                return unitRules.current;
+              }
+            }
+      } // Choose either "past" or "future" based on time `value` sign.
+      // If there's only "other" then it's being collapsed.
+      // (the resulting bundle size optimization technique)
+
+
+      var quantifierRules = unitRules[value <= 0 ? "past" : "future"]; // Bundle size optimization technique.
+
+      if (typeof quantifierRules === "string") {
+        return quantifierRules;
+      } // Quantify `value`.
+
+
+      var quantify = Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getLocaleData"])(this.locale).quantify;
+      var quantifier = quantify && quantify(Math.abs(value)); // There seems to be no such locale in CLDR
+      // for which `quantify` is missing
+      // and still `past` and `future` messages
+      // contain something other than "other".
+
+      /* istanbul ignore next */
+
+      quantifier = quantifier || 'other'; // "other" rule is supposed to be always present.
+      // If only "other" rule is present then "rules" is not an object and is a string.
+
+      return quantifierRules[quantifier] || quantifierRules.other;
+    }
+    /**
+     * Formats a number into a string.
+     * Uses `Intl.NumberFormat` when available.
+     * @param  {number} number
+     * @return {string}
+     */
+
+  }, {
+    key: "formatNumber",
+    value: function formatNumber(number) {
+      return this.numberFormat ? this.numberFormat.format(number) : String(number);
+    }
+    /**
+     * Returns a new object with properties reflecting the locale and date and time formatting options computed during initialization of this DateTimeFormat object.
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat/resolvedOptions
+     * @return {Object}
+     */
+
+  }, {
+    key: "resolvedOptions",
+    value: function resolvedOptions() {
+      return {
+        locale: this.locale,
+        style: this.style,
+        numeric: this.numeric
+      };
+    }
+  }]);
+
+  return RelativeTimeFormat;
+}();
+/**
+ * Returns an array containing those of the provided locales
+ * that are supported in collation without having to fall back
+ * to the runtime's default locale.
+ * @param {(string|string[])} locale - A string with a BCP 47 language tag, or an array of such strings. For the general form of the locales argument, see the Intl page.
+ * @param {Object} [options] - An object that may have the following property:
+ * @param {string} [options.localeMatcher="lookup"] - The locale matching algorithm to use. Possible values are "lookup" and "best fit". Currently only "lookup" is supported.
+ * @return {string[]} An array of strings representing a subset of the given locale tags that are supported in collation without having to fall back to the runtime's default locale.
+ * @example
+ * var locales = ['ban', 'id-u-co-pinyin', 'es-PY']
+ * var options = { localeMatcher: 'lookup' }
+ * // Returns ["id", "es-PY"]
+ * Intl.RelativeTimeFormat.supportedLocalesOf(locales, options)
+ */
+
+
+
+
+RelativeTimeFormat.supportedLocalesOf = function (locales) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  // Convert `locales` to an array.
+  if (typeof locales === 'string') {
+    locales = [locales];
+  }
+
+  return locales.filter(function (locale) {
+    return Object(_resolveLocale__WEBPACK_IMPORTED_MODULE_1__["default"])(locale, options);
+  });
+};
+/**
+ * Adds locale data for a specific locale.
+ * @param {Object} localeData
+ */
+
+
+RelativeTimeFormat.addLocale = _LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["addLocaleData"];
+/**
+ * Sets default locale.
+ * @param  {string} locale
+ */
+
+RelativeTimeFormat.setDefaultLocale = _LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["setDefaultLocale"];
+/**
+ * Gets default locale.
+ * @return  {string} locale
+ */
+
+RelativeTimeFormat.getDefaultLocale = _LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getDefaultLocale"];
+/**
+ * Extracts language from an IETF BCP 47 language tag.
+ * @param {string} languageTag - IETF BCP 47 language tag.
+ * @return {string}
+ * @example
+ * // Returns "he"
+ * getLanguageFromLanguageTag("he-IL-u-ca-hebrew-tz-jeruslm")
+ * // Returns "ar"
+ * getLanguageFromLanguageTag("ar-u-nu-latn")
+ */
+// export function getLanguageFromLanguageTag(languageTag) {
+//   const hyphenIndex = languageTag.indexOf('-')
+//   if (hyphenIndex > 0) {
+//     return languageTag.slice(0, hyphenIndex)
+//   }
+//   return languageTag
+// }
+//# sourceMappingURL=RelativeTimeFormat.js.map
+
+/***/ }),
+
+/***/ "./node_modules/relative-time-format/modules/resolveLocale.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/relative-time-format/modules/resolveLocale.js ***!
+  \********************************************************************/
+/*! exports provided: default, resolveLocaleLookup */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return resolveLocale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resolveLocaleLookup", function() { return resolveLocaleLookup; });
+/* harmony import */ var _LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LocaleDataStore */ "./node_modules/relative-time-format/modules/LocaleDataStore.js");
+
+/**
+ * Resolves a locale to a supported one (if any).
+ * @param  {string} locale
+ * @param {Object} [options] - An object that may have the following property:
+ * @param {string} [options.localeMatcher="lookup"] - The locale matching algorithm to use. Possible values are "lookup" and "best fit". Currently only "lookup" is supported.
+ * @return {string} [locale]
+ * @example
+ * // Returns "sr"
+ * resolveLocale("sr-Cyrl-BA")
+ * // Returns `undefined`
+ * resolveLocale("xx-Latn")
+ */
+
+function resolveLocale(locale) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var localeMatcher = options.localeMatcher || 'lookup';
+
+  switch (localeMatcher) {
+    case 'lookup':
+      return resolveLocaleLookup(locale);
+    // "best fit" locale matching is not supported.
+    // https://github.com/catamphetamine/relative-time-format/issues/2
+
+    case 'best fit':
+      // return resolveLocaleBestFit(locale)
+      return resolveLocaleLookup(locale);
+
+    default:
+      throw new RangeError("Invalid \"localeMatcher\" option: ".concat(localeMatcher));
+  }
+}
+/**
+ * Resolves a locale to a supported one (if any).
+ * Starts from the most specific locale and gradually
+ * falls back to less specific ones.
+ * This is a basic implementation of the "lookup" algorithm.
+ * https://tools.ietf.org/html/rfc4647#section-3.4
+ * @param  {string} locale
+ * @return {string} [locale]
+ * @example
+ * // Returns "sr"
+ * resolveLocaleLookup("sr-Cyrl-BA")
+ * // Returns `undefined`
+ * resolveLocaleLookup("xx-Latn")
+ */
+
+function resolveLocaleLookup(locale) {
+  if (Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getLocaleData"])(locale)) {
+    return locale;
+  } // `sr-Cyrl-BA` -> `sr-Cyrl` -> `sr`.
+
+
+  var parts = locale.split('-');
+
+  while (locale.length > 1) {
+    parts.pop();
+    locale = parts.join('-');
+
+    if (Object(_LocaleDataStore__WEBPACK_IMPORTED_MODULE_0__["getLocaleData"])(locale)) {
+      return locale;
+    }
+  }
+}
+//# sourceMappingURL=resolveLocale.js.map
+
+/***/ }),
+
 /***/ "./node_modules/setimmediate/setImmediate.js":
 /*!***************************************************!*\
   !*** ./node_modules/setimmediate/setImmediate.js ***!
@@ -23256,25 +25409,37 @@ var render = function() {
     _c(
       "div",
       { staticClass: "section__content" },
-      _vm._l(_vm.comments, function(item, index) {
+      _vm._l(this.$store.getters.comments, function(item, index) {
         return _c("article", { key: index, staticClass: "article__comment" }, [
-          _c("span", [_vm._v(_vm._s(item.user))]),
+          _c("span", [_vm._v(_vm._s(item.user.name))]),
           _vm._v(" "),
           _c("div", { staticClass: "article__comment-content" }, [
-            _vm._v(
-              "\n                " + _vm._s(item.content) + "    \n            "
-            )
+            _vm._v(_vm._s(item.content))
           ]),
           _vm._v(" "),
           _c("time", { attrs: { datetime: item.date } }, [
-            _vm._v(_vm._s(_vm.$dashToDot(item.date)))
+            _vm._v(_vm._s(_vm.getTimeAgo(item.timestamp)))
           ])
         ])
       }),
       0
     ),
     _vm._v(" "),
-    _c("div", { staticClass: "section__footer" }, [_c("comment-form")], 1)
+    _c(
+      "div",
+      { staticClass: "section__footer" },
+      [
+        _vm.$cookies.get("token")
+          ? _c("comment-form", {
+              attrs: {
+                commentableType: _vm.commentableType,
+                commentableId: _vm.commentableId
+              }
+            })
+          : _vm._e()
+      ],
+      1
+    )
   ])
 }
 var staticRenderFns = [
@@ -23324,31 +25489,31 @@ var render = function() {
               {
                 name: "model",
                 rawName: "v-model",
-                value: _vm.fields.comment,
-                expression: "fields.comment"
+                value: _vm.fields.content,
+                expression: "fields.content"
               }
             ],
             staticClass: "form__field",
             attrs: { required: "", placeholder: "Write Comment", rows: "3" },
-            domProps: { value: _vm.fields.comment },
+            domProps: { value: _vm.fields.content },
             on: {
               input: function($event) {
                 if ($event.target.composing) {
                   return
                 }
-                _vm.$set(_vm.fields, "comment", $event.target.value)
+                _vm.$set(_vm.fields, "content", $event.target.value)
               }
             }
           }),
           _vm._v(" "),
-          _c("messages-list", { attrs: { items: _vm.messages.title } })
+          _c("messages-list", { attrs: { items: _vm.messages.content } })
         ],
         1
       ),
       _vm._v(" "),
       _c(
         "div",
-        { staticClass: "form__group form__actions" },
+        { staticClass: "form__group form__actions-comment" },
         [
           _c(
             "button",
@@ -23788,7 +25953,7 @@ var render = function() {
     _c(
       "div",
       { staticClass: "section__content" },
-      _vm._l(_vm.newsItems, function(item, index) {
+      _vm._l(this.$store.getters.posts, function(item, index) {
         return _c("article", { key: index }, [
           _c(
             "figure",
@@ -23796,13 +25961,17 @@ var render = function() {
               _c(
                 "router-link",
                 {
-                  attrs: { to: { name: "singlePost", params: { postId: 1 } } }
+                  attrs: {
+                    to: { name: "singlePost", params: { postId: item.id } }
+                  }
                 },
                 [
-                  _c("img", { attrs: { src: item.image } }),
+                  _c("img", {
+                    attrs: { src: item.image || "/img/article/280x200.jpg" }
+                  }),
                   _vm._v(" "),
                   _c("time", { attrs: { datetime: item.date } }, [
-                    _vm._v(_vm._s(_vm.$dashToDot(item.date)))
+                    _vm._v(_vm._s(_vm.$formatter("dashToDot", item.date)))
                   ]),
                   _vm._v(" "),
                   _c("figcaption", [_vm._v(_vm._s(item.title))])
@@ -23816,19 +25985,25 @@ var render = function() {
       0
     ),
     _vm._v(" "),
-    _vm._m(0)
+    _c("div", { staticClass: "section__footer" }, [
+      _vm.showLoadMore
+        ? _c(
+            "button",
+            {
+              on: {
+                click: function($event) {
+                  $event.preventDefault()
+                  return _vm.handleLoadMore($event)
+                }
+              }
+            },
+            [_vm._v("Load More")]
+          )
+        : _vm._e()
+    ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "section__footer" }, [
-      _c("button", [_vm._v("Load More")])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -23851,36 +26026,39 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("article", { staticClass: "article__post" }, [
-    _c("div", { staticClass: "article__post-actions" }, [
-      _c(
-        "a",
-        {
-          attrs: { href: "#" },
-          on: {
-            click: function($event) {
-              $event.preventDefault()
-              return _vm.handleEditPost($event)
-            }
-          }
-        },
-        [_vm._v("Edit Post")]
-      )
+    _vm.$cookies.get("token")
+      ? _c("div", { staticClass: "article__post-actions" }, [
+          _c(
+            "a",
+            {
+              attrs: { href: "#" },
+              on: {
+                click: function($event) {
+                  $event.preventDefault()
+                  return _vm.handleEditPost($event)
+                }
+              }
+            },
+            [_vm._v("Edit Post")]
+          )
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _c("time", { attrs: { datetime: "2020-02-20" } }, [
+      _vm._v(_vm._s(_vm.$formatter("dashToDot", _vm.post.date)))
     ]),
     _vm._v(" "),
-    _c("time", { attrs: { datetime: "2020-02-20" } }, [_vm._v("2020.02.20")]),
+    _c("h1", [_vm._v(_vm._s(_vm.post.title))]),
     _vm._v(" "),
-    _c("h1", [
-      _vm._v(
-        "サンプルテキストサンプルテキストサンプルテキスト ササンプルテキストサンプルテキ"
-      )
-    ]),
-    _vm._v(" "),
-    _c("img", { attrs: { src: "/img/slider/slider1.jpg" } }),
+    _vm.post.image
+      ? _c("div", {
+          staticClass: "article__post-image",
+          style: "background-image:url('" + _vm.post.image + "')"
+        })
+      : _vm._e(),
     _vm._v(" "),
     _c("div", { staticClass: "article__post-content" }, [
-      _vm._v(
-        "\n        サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト\n        サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト サンプルテキストサンプルテキストサンプルテキスト\n        \n        サンプルテキストサンプルテキストサンプルテキストサンプルテキストサンプルテキストサンプルテキストサンプルテキストサンプルテキストサンプルテキスト\n    "
-      )
+      _vm._v(_vm._s(_vm.post.content))
     ])
   ])
 }
@@ -24328,7 +26506,7 @@ var render = function() {
               _c("span", [_vm._v(_vm._s(item.title))]),
               _vm._v(" "),
               _c("time", { attrs: { datetime: item.date } }, [
-                _vm._v(_vm._s(_vm.$dashToDot(item.date)))
+                _vm._v(_vm._s(_vm.$formatter("dashToDot", item.date)))
               ])
             ])
           ]
@@ -24562,27 +26740,32 @@ var render = function() {
         { staticClass: "container" },
         [
           _vm.edit
-            ? _c("post-form", { on: { cancelEdit: _vm.handleCancelEdit } })
-            : _c("post-display", { on: { editPost: _vm.handleEditPost } })
+            ? _c("post-form", {
+                attrs: { post: _vm.post },
+                on: { cancelEdit: _vm.handleCancelEdit }
+              })
+            : _c("post-display", {
+                attrs: { post: _vm.post },
+                on: { editPost: _vm.handleEditPost }
+              })
         ],
         1
       ),
       _vm._v(" "),
-      _vm._m(0),
+      _vm.hasComment
+        ? _c("div", { staticClass: "container" }, [_c("hr")])
+        : _vm._e(),
       _vm._v(" "),
-      _c("comment")
+      _vm.hasComment
+        ? _c("comment", {
+            attrs: { commentableType: "post", commentableId: _vm.routePostId }
+          })
+        : _vm._e()
     ],
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "container" }, [_c("hr")])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -41181,8 +43364,8 @@ vue__WEBPACK_IMPORTED_MODULE_1___default.a.use(vue_cookies__WEBPACK_IMPORTED_MOD
 
 vue__WEBPACK_IMPORTED_MODULE_1___default.a.$cookies.config('7d');
 
-vue__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.$dashToDot = function () {
-  return _helpers_formatter__WEBPACK_IMPORTED_MODULE_7__["dashToDot"].apply(void 0, arguments);
+vue__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.$formatter = function () {
+  return _helpers_formatter__WEBPACK_IMPORTED_MODULE_7__["formatter"].apply(void 0, arguments);
 };
 
 new vue__WEBPACK_IMPORTED_MODULE_1___default.a({
@@ -42271,14 +44454,26 @@ __webpack_require__.r(__webpack_exports__);
 /*!*******************************************!*\
   !*** ./resources/js/helpers/formatter.js ***!
   \*******************************************/
-/*! exports provided: dashToDot */
+/*! exports provided: actions, formatter */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dashToDot", function() { return dashToDot; });
-var dashToDot = function dashToDot(string) {
-  return string.replace(/-/gi, ".");
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "actions", function() { return actions; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatter", function() { return formatter; });
+var actions = {
+  dashToDot: function dashToDot(string) {
+    if (string) {
+      return string.replace(/-/gi, ".");
+    }
+  }
+};
+var formatter = function formatter(action) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  return actions[action].apply(actions, args);
 };
 
 /***/ }),
@@ -42347,6 +44542,50 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/mixins/commentable.js":
+/*!********************************************!*\
+  !*** ./resources/js/mixins/commentable.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: {
+    commentableType: {
+      type: String,
+      "default": ''
+    },
+    commentableId: {
+      type: Number,
+      "default": 0
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./resources/js/mixins/singlePost.js":
+/*!*******************************************!*\
+  !*** ./resources/js/mixins/singlePost.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: {
+    post: {
+      type: Object,
+      "default": {}
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./resources/js/route/routes.js":
 /*!**************************************!*\
   !*** ./resources/js/route/routes.js ***!
@@ -42384,7 +44623,10 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
     }, {
       path: '/post/create',
       name: 'createPost',
-      component: _views_CreatePost__WEBPACK_IMPORTED_MODULE_3__["default"]
+      component: _views_CreatePost__WEBPACK_IMPORTED_MODULE_3__["default"],
+      meta: {
+        requiredAuth: true
+      }
     }, {
       path: '/post/:postId',
       name: 'singlePost',
@@ -42395,6 +44637,16 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
       component: _views_NotFound__WEBPACK_IMPORTED_MODULE_5__["default"]
     }]
   }]
+});
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.router = router;
+router.beforeEach(function (to, from, next) {
+  if (to.meta.requiredAuth === true && !$cookies.get('token')) {
+    next({
+      path: '/'
+    });
+  } else {
+    next();
+  }
 });
 /* harmony default export */ __webpack_exports__["default"] = (router);
 
@@ -42543,7 +44795,7 @@ function loadLocaleMessages() {
 /*!********************************************!*\
   !*** ./resources/js/store/action-types.js ***!
   \********************************************/
-/*! exports provided: REGISTER, LOGIN, LOGOUT, ACTION */
+/*! exports provided: REGISTER, LOGIN, LOGOUT, POST_LIST, POST_STORE, POST_SHOW, POST_UPDATE, POST_DELETE, COMMENT_LIST, COMMENT_STORE, COMMENT_SHOW, COMMENT_UPDATE, COMMENT_DELETE, ACTION */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -42551,15 +44803,47 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "REGISTER", function() { return REGISTER; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGIN", function() { return LOGIN; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOGOUT", function() { return LOGOUT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_LIST", function() { return POST_LIST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_STORE", function() { return POST_STORE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_SHOW", function() { return POST_SHOW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_UPDATE", function() { return POST_UPDATE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_DELETE", function() { return POST_DELETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_LIST", function() { return COMMENT_LIST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_STORE", function() { return COMMENT_STORE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_SHOW", function() { return COMMENT_SHOW; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_UPDATE", function() { return COMMENT_UPDATE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_DELETE", function() { return COMMENT_DELETE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ACTION", function() { return ACTION; });
-//auth.js
+// auth.js
 var REGISTER = 'REGISTER';
 var LOGIN = 'LOGIN';
-var LOGOUT = 'LOGOUT';
+var LOGOUT = 'LOGOUT'; // post.js
+
+var POST_LIST = 'POST_LIST';
+var POST_STORE = 'POST_STORE';
+var POST_SHOW = 'POST_SHOW';
+var POST_UPDATE = 'POST_UPDATE';
+var POST_DELETE = 'POST_DELETE'; // comment.js
+
+var COMMENT_LIST = 'COMMENT_LIST';
+var COMMENT_STORE = 'COMMENT_STORE';
+var COMMENT_SHOW = 'COMMENT_SHOW';
+var COMMENT_UPDATE = 'COMMENT_UPDATE';
+var COMMENT_DELETE = 'COMMENT_DELETE';
 var ACTION = {
   REGISTER: REGISTER,
   LOGIN: LOGIN,
-  LOGOUT: LOGOUT
+  LOGOUT: LOGOUT,
+  POST_LIST: POST_LIST,
+  POST_STORE: POST_STORE,
+  POST_SHOW: POST_SHOW,
+  POST_UPDATE: POST_UPDATE,
+  POST_DELETE: POST_DELETE,
+  COMMENT_LIST: COMMENT_LIST,
+  COMMENT_STORE: COMMENT_STORE,
+  COMMENT_SHOW: COMMENT_SHOW,
+  COMMENT_UPDATE: COMMENT_UPDATE,
+  COMMENT_DELETE: COMMENT_DELETE
 };
 
 /***/ }),
@@ -42577,12 +44861,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _modules_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/auth */ "./resources/js/store/modules/auth.js");
+/* harmony import */ var _modules_post__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/post */ "./resources/js/store/modules/post.js");
+/* harmony import */ var _modules_comment__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/comment */ "./resources/js/store/modules/comment.js");
+
+
 
 
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 var modules = {
-  auth: _modules_auth__WEBPACK_IMPORTED_MODULE_2__["default"]
+  auth: _modules_auth__WEBPACK_IMPORTED_MODULE_2__["default"],
+  post: _modules_post__WEBPACK_IMPORTED_MODULE_3__["default"],
+  comment: _modules_comment__WEBPACK_IMPORTED_MODULE_4__["default"]
 };
 /* harmony default export */ __webpack_exports__["default"] = (new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   modules: modules
@@ -42657,6 +44947,307 @@ var actions = (_actions = {}, _defineProperty(_actions, ACTION.REGISTER, functio
 /* harmony default export */ __webpack_exports__["default"] = ({
   actions: actions
 });
+
+/***/ }),
+
+/***/ "./resources/js/store/modules/comment.js":
+/*!***********************************************!*\
+  !*** ./resources/js/store/modules/comment.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _services_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../services/http */ "./resources/js/services/http.js");
+var _actions, _mutations;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var _require = __webpack_require__(/*! ../action-types */ "./resources/js/store/action-types.js"),
+    ACTION = _require.ACTION;
+
+var _require2 = __webpack_require__(/*! ../mutation-types */ "./resources/js/store/mutation-types.js"),
+    MUTATION = _require2.MUTATION;
+
+var state = {
+  comments: []
+};
+var getters = {
+  comments: function comments(state) {
+    return state.comments;
+  }
+};
+var actions = (_actions = {}, _defineProperty(_actions, ACTION.COMMENT_LIST, function (_ref, _ref2) {
+  var commit = _ref.commit;
+  var commentableType = _ref2.commentableType,
+      commentableId = _ref2.commentableId,
+      page = _ref2.page,
+      perPage = _ref2.perPage,
+      successCb = _ref2.successCb,
+      errorCb = _ref2.errorCb;
+  page = page || 1;
+  perPage = perPage || 20;
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].get('comments?page=' + page + '&per_page=' + perPage + '&commentable_type=' + commentableType + '&commentable_id=' + commentableId, function (res) {
+    commit(MUTATION.COMMENTS_SET, {
+      comments: res.data.data
+    });
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.COMMENT_STORE, function (_ref3, _ref4) {
+  var commit = _ref3.commit;
+  var commentableType = _ref4.commentableType,
+      commentableId = _ref4.commentableId,
+      content = _ref4.content,
+      parentId = _ref4.parentId,
+      successCb = _ref4.successCb,
+      errorCb = _ref4.errorCb;
+  parentId = parentId || 0;
+  var params = {
+    commentable_type: commentableType,
+    commentable_id: commentableId,
+    content: content,
+    parent_id: parentId
+  };
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].post('comments', params, function (res) {
+    commit(MUTATION.COMMENT_STORE, {
+      comment: res.data.data
+    });
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.COMMENT_SHOW, function (_ref5, _ref6) {
+  var commit = _ref5.commit;
+  var id = _ref6.id,
+      successCb = _ref6.successCb,
+      errorCb = _ref6.errorCb;
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].get('comments/' + id, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.COMMENT_UPDATE, function (_ref7, _ref8) {
+  var commit = _ref7.commit;
+  var content = _ref8.content,
+      successCb = _ref8.successCb,
+      errorCb = _ref8.errorCb;
+  var params = {
+    content: content
+  };
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].put('comments/' + id, params, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.COMMENT_DELETE, function (_ref9, _ref10) {
+  var commit = _ref9.commit;
+  var successCb = _ref10.successCb,
+      errorCb = _ref10.errorCb;
+  var params = {};
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"]["delete"]('comments/' + id, params, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _actions);
+var mutations = (_mutations = {}, _defineProperty(_mutations, MUTATION.COMMENTS_SET, function (state, _ref11) {
+  var comments = _ref11.comments;
+  state.comments = comments;
+}), _defineProperty(_mutations, MUTATION.COMMENT_STORE, function (state, _ref12) {
+  var comment = _ref12.comment;
+  state.comments.unshift(comment);
+}), _mutations);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
+
+/***/ }),
+
+/***/ "./resources/js/store/modules/post.js":
+/*!********************************************!*\
+  !*** ./resources/js/store/modules/post.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _services_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../services/http */ "./resources/js/services/http.js");
+var _actions, _mutations;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+var _require = __webpack_require__(/*! ../action-types */ "./resources/js/store/action-types.js"),
+    ACTION = _require.ACTION;
+
+var _require2 = __webpack_require__(/*! ../mutation-types */ "./resources/js/store/mutation-types.js"),
+    MUTATION = _require2.MUTATION;
+
+var state = {
+  posts: [],
+  postId: 0
+};
+var getters = {
+  posts: function posts(state) {
+    return state.posts;
+  },
+  getPost: function getPost(state, getters) {
+    return function (id) {
+      return state.posts.find(function (post) {
+        return post.id === id;
+      }) || {};
+    };
+  }
+};
+var actions = (_actions = {}, _defineProperty(_actions, ACTION.POST_LIST, function (_ref, _ref2) {
+  var commit = _ref.commit;
+  var page = _ref2.page,
+      perPage = _ref2.perPage,
+      concat = _ref2.concat,
+      successCb = _ref2.successCb,
+      errorCb = _ref2.errorCb;
+  page = page || 1;
+  perPage = perPage || 6;
+  concat = concat || false;
+  if (page === 1) concat = false;
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].get('posts?page=' + page + '&per_page=' + perPage, function (res) {
+    commit(MUTATION.POSTS_SET, {
+      posts: res.data.data,
+      concat: concat
+    });
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.POST_STORE, function (_ref3, _ref4) {
+  var commit = _ref3.commit;
+  var title = _ref4.title,
+      content = _ref4.content,
+      image = _ref4.image,
+      successCb = _ref4.successCb,
+      errorCb = _ref4.errorCb;
+  var params = {
+    title: title,
+    content: content,
+    image: image
+  };
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].post('posts', params, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.POST_SHOW, function (_ref5, _ref6) {
+  var commit = _ref5.commit;
+  var id = _ref6.id,
+      successCb = _ref6.successCb,
+      errorCb = _ref6.errorCb;
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].get('posts/' + id, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.POST_UPDATE, function (_ref7, _ref8) {
+  var commit = _ref7.commit;
+  var title = _ref8.title,
+      content = _ref8.content,
+      image = _ref8.image,
+      successCb = _ref8.successCb,
+      errorCb = _ref8.errorCb;
+  var params = {
+    title: title,
+    content: content,
+    image: image
+  };
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"].put('posts/' + id, params, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _defineProperty(_actions, ACTION.POST_DELETE, function (_ref9, _ref10) {
+  var commit = _ref9.commit;
+  var successCb = _ref10.successCb,
+      errorCb = _ref10.errorCb;
+  var params = {};
+  _services_http__WEBPACK_IMPORTED_MODULE_0__["default"]["delete"]('posts/' + id, params, function (res) {
+    successCb(res);
+  }, function (error) {
+    errorCb(error);
+  });
+}), _actions);
+var mutations = (_mutations = {}, _defineProperty(_mutations, MUTATION.POSTS_SET, function (state, _ref11) {
+  var posts = _ref11.posts,
+      concat = _ref11.concat;
+
+  if (concat) {
+    state.posts = state.posts.concat(posts);
+  } else {
+    state.posts = posts;
+  }
+}), _defineProperty(_mutations, MUTATION.POST_STORE, function (state, _ref12) {
+  var post = _ref12.post;
+  state.posts.push(post);
+}), _defineProperty(_mutations, MUTATION.POST_UPDATE, function (state, _ref13) {
+  var post = _ref13.post;
+  state.posts[state.posts.findIndex(function (post) {
+    return post.id == id;
+  })] = post;
+}), _defineProperty(_mutations, MUTATION.POST_REMOVE, function (state, _ref14) {
+  var id = _ref14.id;
+  state.posts.splice([state.posts.findIndex(function (post) {
+    return post.id == id;
+  })], 1);
+}), _mutations);
+/* harmony default export */ __webpack_exports__["default"] = ({
+  state: state,
+  getters: getters,
+  actions: actions,
+  mutations: mutations
+});
+
+/***/ }),
+
+/***/ "./resources/js/store/mutation-types.js":
+/*!**********************************************!*\
+  !*** ./resources/js/store/mutation-types.js ***!
+  \**********************************************/
+/*! exports provided: POSTS_SET, POST_STORE, POST_UPDATE, POST_DELETE, COMMENTS_SET, COMMENT_STORE, MUTATION */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POSTS_SET", function() { return POSTS_SET; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_STORE", function() { return POST_STORE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_UPDATE", function() { return POST_UPDATE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "POST_DELETE", function() { return POST_DELETE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENTS_SET", function() { return COMMENTS_SET; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "COMMENT_STORE", function() { return COMMENT_STORE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MUTATION", function() { return MUTATION; });
+// post.js
+var POSTS_SET = 'POSTS_SET';
+var POST_STORE = 'POST_STORE';
+var POST_UPDATE = 'POST_UPDATE';
+var POST_DELETE = 'POST_DELETE'; // comment.js
+
+var COMMENTS_SET = 'COMMENTS_SET';
+var COMMENT_STORE = 'COMMENT_STORE';
+var MUTATION = {
+  POSTS_SET: POSTS_SET,
+  POST_STORE: POST_STORE,
+  POST_UPDATE: POST_UPDATE,
+  POST_DELETE: POST_DELETE,
+  COMMENTS_SET: COMMENTS_SET,
+  COMMENT_STORE: COMMENT_STORE
+};
 
 /***/ }),
 

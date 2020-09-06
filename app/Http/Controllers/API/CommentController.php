@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Post;
 use App\Comment;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentIndexRequest;
 use App\Http\Resources\CommentResource;
 use App\Http\Requests\CommentStoreRequest;
 use App\Http\Requests\CommentUpdateRequest;
@@ -15,15 +15,20 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\CommentIndexRequest  $request
      * 
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(CommentIndexRequest $request)
     {
-        $page = $request->input('page', 10);
+        $perPage = $request->input('per_page', 10);
+        $comments = Comment::parent()
+                    ->commentable($request->input('commentable_type'), $request->input('commentable_id'))
+                    ->orderBy('created_at', 'desc')
+                    ->with('childrenComments')
+                    ->paginate($perPage);
 
-        return CommentResource::collection(Comment::parent()->with('childrenComments')->paginate($page));
+        return CommentResource::collection($comments);
     }
 
     /**
@@ -38,8 +43,15 @@ class CommentController extends Controller
         $user = $request->user();
         $comment = $user->comments()->create($request->toArray());
 
-        $post = Post::find($request->input('post_id'));
-        $post->comments()->save($comment);
+        $types = [
+            'post' => Post::class
+        ];
+        if (!array_key_exists($request->input('commentable_type'), $types)) {
+            abort(404);
+        }
+
+        $model = $types[$request->input('commentable_type')]::find($request->input('commentable_id'));
+        $model->comments()->save($comment);
         
         return new CommentResource($comment);
     }

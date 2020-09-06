@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommentResource extends JsonResource
@@ -22,8 +23,8 @@ class CommentResource extends JsonResource
             ],
             'parent_id' => $this->parent_id,
             'content' => $this->content,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+            'date' => $this->created_at->format('Y-m-d H:i:s'),
+            'timestamp' => $this->created_at->timestamp,
             'comments' => $this->childrenComments,
         ];
     }

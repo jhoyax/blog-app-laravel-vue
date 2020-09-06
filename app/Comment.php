@@ -68,4 +68,30 @@ class Comment extends Model
     {
         return $query->where('parent_id', 0);
     }
+    
+
+    /**
+     * Scope a query to get by commentable
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCommentable($query, $type, $id)
+    {
+        $types = [
+            'post' => Post::class
+        ];
+        
+        if (!array_key_exists($type, $types)) {
+            abort(404);
+        }
+
+        $type = $types[$type];
+
+        return $query->whereHasMorph('commentable', '*', function ($query) use ($type, $id) {
+            $query->where('commentable_id', $id);
+            $query->where('commentable_type', $type);
+        });
+    }
 }

@@ -5,7 +5,7 @@ import store from './store/';
 import App from './App.vue';
 import i18n from './services/i18n'
 import http from "./services/http"
-import { dashToDot } from './helpers/formatter'
+import { formatter } from './helpers/formatter'
 import VueCookies from 'vue-cookies'
 
 Vue.use(VueCookies)
@@ -13,7 +13,7 @@ Vue.use(VueCookies)
 // set default config
 Vue.$cookies.config('7d');
 
-Vue.prototype.$dashToDot = (...args) => dashToDot(...args);
+Vue.prototype.$formatter = (...args) => formatter(...args);
 
 new Vue({
     el: '#app',

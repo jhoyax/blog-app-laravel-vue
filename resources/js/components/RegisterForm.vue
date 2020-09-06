@@ -39,8 +39,9 @@
 
 <script>
 import MessagesList from './MessagesList';
-const store = require('../store/').default;
 import { eventBus } from '../services/eventBus';
+
+const store = require('../store/').default;
 const {REGISTER} = require('../store/action-types');
 
 export default {

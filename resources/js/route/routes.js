@@ -25,6 +25,7 @@ let router = new VueRouter({
                 path: '/post/create',
                 name: 'createPost',
                 component: CreatePost,
+                meta: { requiredAuth: true }
             },
             {
                 path: '/post/:postId',
@@ -39,6 +40,19 @@ let router = new VueRouter({
           ]
         }
     ]
+});
+
+Vue.router = router
+
+router.beforeEach ((to, from, next) => {
+    if (
+        to.meta.requiredAuth === true && 
+        !$cookies.get('token')
+    ) {
+        next({path: '/'});
+    } else {
+        next();
+    }
 });
 
 export default router;
