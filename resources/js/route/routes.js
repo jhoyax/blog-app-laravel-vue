@@ -46,8 +46,8 @@ Vue.router = router
 
 router.beforeEach ((to, from, next) => {
     if (
-        to.meta.requiredAuth === true && 
-        !$cookies.get('token')
+        to.meta.requiredAuth === true &&
+        !$cookies.isKey('token')
     ) {
         next({path: '/'});
     } else {

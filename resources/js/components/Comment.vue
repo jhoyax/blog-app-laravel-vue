@@ -11,7 +11,7 @@
             </article>
         </div>
         <div class="section__footer">
-            <comment-form v-if="$cookies.get('token')" :commentableType="commentableType" :commentableId="commentableId"/>
+            <comment-form v-if="$cookies.isKey('token')" :commentableType="commentableType" :commentableId="commentableId"/>
         </div>
     </section>
 </template>

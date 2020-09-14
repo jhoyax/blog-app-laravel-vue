@@ -1,6 +1,6 @@
 <template>
     <article class="article__post">
-        <div class="article__post-actions" v-if="$cookies.get('token') && post.canEdit">
+        <div class="article__post-actions" v-if="$cookies.isKey('token') && post.canEdit">
             <a href="#" @click.prevent="handleEditPost">Edit Post</a>
         </div>
         <time datetime="2020-02-20">{{$formatter('dashToDot', post.date)}}</time>

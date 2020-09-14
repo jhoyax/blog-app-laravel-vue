@@ -46,7 +46,7 @@ export default {
             this.hasUser = data;
         });
 
-        if ($cookies.get('token')) {
+        if ($cookies.isKey('token')) {
             this.hasUser = true;
         }
 

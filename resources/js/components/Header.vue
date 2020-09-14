@@ -39,7 +39,7 @@ export default {
             }
         });
 
-        if ($cookies.get('token')) {
+        if ($cookies.isKey('token')) {
             this.hasUser = true;
         }
     },
@@ -55,7 +55,7 @@ export default {
                 successCb: res => {
                     this.hasUser = false;
                     eventBus.$emit('userLoggedIn', false);
-                    
+
                     if(this.$route.name !== 'home'){
                         // redirect to home
                         this.$router.push({name: 'home'});
